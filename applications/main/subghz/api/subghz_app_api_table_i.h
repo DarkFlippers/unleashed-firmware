@@ -17,4 +17,15 @@ static constexpr auto subghz_app_api_table = sort(create_array_t<sym_entry>(
     // Add Manually: every generator sets the radio preset before serializing, and each scene that
     // finishes a remote clears the loaded file name so the save lands on a fresh one.
     API_METHOD(subghz_txrx_set_preset, void, (SubGhzTxRx*, const char*, uint32_t, uint8_t*, size_t)),
-    API_METHOD(subghz_file_name_clear, void, (SubGhz*))));
+    API_METHOD(subghz_file_name_clear, void, (SubGhz*)),
+    // Signal Settings: rewrites the counter mode in the file, reloads it and resends. Plain
+    // SubGhzTxRx fields are read directly through subghz_txrx_i.h rather than exported here.
+    API_METHOD(subghz_key_load, bool, (SubGhz*, const char*, bool)),
+    API_METHOD(subghz_tx_start, bool, (SubGhz*, FlipperFormat*)),
+    API_METHOD(subghz_txrx_stop, void, (SubGhzTxRx*)),
+    // Radio Settings: switches between the internal and an external radio
+    API_METHOD(
+        subghz_txrx_radio_device_set,
+        SubGhzRadioDeviceType,
+        (SubGhzTxRx*, SubGhzRadioDeviceType)),
+    API_METHOD(subghz_txrx_radio_device_is_external_connected, bool, (SubGhzTxRx*, const char*))));
