@@ -7,6 +7,7 @@
 #include <storage/storage.h>
 #include "ducky_script.h"
 #include "ducky_script_i.h"
+#include "ducky_layout.h"
 #include <dolphin/dolphin.h>
 
 #define TAG "BadUsb"
@@ -495,6 +496,7 @@ static int32_t bad_usb_worker(void* context) {
                 delay_val = 0;
                 bad_usb->buf_len = 0;
                 bad_usb->st.line_cur = 0;
+                memcpy(bad_usb->layout, bad_usb->default_layout, sizeof(bad_usb->layout));
                 bad_usb->defdelay = 0;
                 bad_usb->stringdelay = 0;
                 bad_usb->defstringdelay = 0;
@@ -521,6 +523,7 @@ static int32_t bad_usb_worker(void* context) {
                 delay_val = 0;
                 bad_usb->buf_len = 0;
                 bad_usb->st.line_cur = 0;
+                memcpy(bad_usb->layout, bad_usb->default_layout, sizeof(bad_usb->layout));
                 bad_usb->defdelay = 0;
                 bad_usb->stringdelay = 0;
                 bad_usb->defstringdelay = 0;
@@ -720,23 +723,19 @@ static int32_t bad_usb_worker(void* context) {
     return 0;
 }
 
-static void bad_usb_script_set_default_keyboard_layout(BadUsbScript* bad_usb) {
-    furi_assert(bad_usb);
-    memset(bad_usb->layout, HID_KEYBOARD_NONE, sizeof(bad_usb->layout));
-    memcpy(bad_usb->layout, hid_asciimap, MIN(sizeof(hid_asciimap), sizeof(bad_usb->layout)));
-}
-
 BadUsbScript* bad_usb_script_open(
     FuriString* file_path,
     BadUsbHidInterface* interface,
     BadUsbHidConfig* hid_cfg,
-    bool load_id_cfg) {
+    bool load_id_cfg,
+    const FuriString* layout_path) {
     furi_assert(file_path);
 
     BadUsbScript* bad_usb = malloc(sizeof(BadUsbScript));
     bad_usb->file_path = furi_string_alloc();
     furi_string_set(bad_usb->file_path, file_path);
-    bad_usb_script_set_default_keyboard_layout(bad_usb);
+    ducky_layout_load(bad_usb->default_layout, furi_string_get_cstr(layout_path));
+    memcpy(bad_usb->layout, bad_usb->default_layout, sizeof(bad_usb->layout));
 
     bad_usb->st.state = BadUsbStateInit;
     bad_usb->st.error[0] = '\0';
@@ -757,30 +756,6 @@ void bad_usb_script_close(BadUsbScript* bad_usb) {
     furi_thread_free(bad_usb->thread);
     furi_string_free(bad_usb->file_path);
     free(bad_usb);
-}
-
-void bad_usb_script_set_keyboard_layout(BadUsbScript* bad_usb, FuriString* layout_path) {
-    furi_assert(bad_usb);
-
-    if((bad_usb->st.state == BadUsbStateRunning) || (bad_usb->st.state == BadUsbStateDelay)) {
-        // do not update keyboard layout while a script is running
-        return;
-    }
-
-    File* layout_file = storage_file_alloc(furi_record_open(RECORD_STORAGE));
-    if(!furi_string_empty(layout_path)) { //-V1051
-        if(storage_file_open(
-               layout_file, furi_string_get_cstr(layout_path), FSAM_READ, FSOM_OPEN_EXISTING)) {
-            uint16_t layout[128];
-            if(storage_file_read(layout_file, layout, sizeof(layout)) == sizeof(layout)) {
-                memcpy(bad_usb->layout, layout, sizeof(layout));
-            }
-        }
-        storage_file_close(layout_file);
-    } else {
-        bad_usb_script_set_default_keyboard_layout(bad_usb);
-    }
-    storage_file_free(layout_file);
 }
 
 void bad_usb_script_start_stop(BadUsbScript* bad_usb) {
