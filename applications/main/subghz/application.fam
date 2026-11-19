@@ -64,3 +64,21 @@ App(
     fap_libs=["assets", "hwdrivers"],
     fap_exclude_libs=["gcc"],
 )
+
+App(
+    appid="subghz_signal_settings",
+    apptype=FlipperAppType.PLUGIN,
+    targets=["f7"],
+    entry_point="subghz_signal_settings_ep",
+    requires=["subghz"],
+    sources=["plugins/signal_settings/*.c"],
+)
+
+App(
+    appid="subghz_radio_settings",
+    apptype=FlipperAppType.PLUGIN,
+    targets=["f7"],
+    entry_point="subghz_radio_settings_ep",
+    requires=["subghz"],
+    sources=["plugins/radio_settings/*.c"],
+)

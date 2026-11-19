@@ -40,6 +40,7 @@
 #include "helpers/subghz_txrx.h"
 #include "helpers/subghz_add_manually_plugin.h"
 #include "helpers/subghz_frequency_analyzer_plugin.h"
+#include "helpers/subghz_scene_plugin.h"
 
 #include <flipper_application/plugins/composite_resolver.h>
 #include <flipper_application/plugins/plugin_manager.h>
@@ -99,15 +100,17 @@ struct SubGhz {
     // the LED ends up saying the opposite of the bar. Decided once, read everywhere
     bool history_full;
 
-    // Feature plugins, mapped on demand: the analyzer while its scene is current, Add Manually
-    // until the start scene is reached again. The resolver they share is refcounted rather than
-    // owned by whichever loaded first.
+    // Feature plugins, mapped on demand: the analyzer and the settings scenes while their scene
+    // is current, Add Manually until the start scene is reached again. The resolver they share is
+    // refcounted rather than owned by whichever loaded first.
     CompositeApiResolver* api_resolver;
     uint8_t api_resolver_refs;
     PluginManager* freq_analyzer_plugin_manager;
     const SubGhzFrequencyAnalyzerPlugin* freq_analyzer_plugin;
     PluginManager* add_manually_plugin_manager;
     const SubGhzAddManuallyPlugin* add_manually_plugin;
+    PluginManager* scene_plugin_manager;
+    const SubGhzScenePlugin* scene_plugin;
 
     uint16_t idx_menu_chosen;
     SubGhzLoadTypeFile load_type_file;
