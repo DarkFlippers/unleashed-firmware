@@ -40,6 +40,7 @@ struct BadUsbScript {
     uint32_t stringdelay;
     uint32_t defstringdelay;
     uint16_t layout[128];
+    uint16_t default_layout[128]; // immutable after open, worker resets before each run
 
     FuriString* line;
     FuriString* line_prev;
