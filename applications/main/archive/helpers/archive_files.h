@@ -16,6 +16,7 @@ typedef enum {
     ArchiveFileTypeLFRFID,
     ArchiveFileTypeInfrared,
     ArchiveFileTypeBadUsb,
+    ArchiveFileTypePhone,
     ArchiveFileTypeU2f,
     ArchiveFileTypeT5577,
     ArchiveFileTypeApplication,

@@ -234,6 +234,7 @@ Sub-GHz, Archive, Settings and the services are part of the firmware binary and 
 | Seed Capturer | ![SubGhz Icon Badge] | Collect Fix + Hop pairs from FAAC SLH, Genius, Erreka and BFT Mitto remotes for offline seed recovery | by @xMasterX |
 | Remote Analyzer | ![SubGhz Icon Badge] | Decode one remote at a time on the internal CC1101, with a built-in frequency analyzer | by @xMasterX |
 | Sub-GHz RAW Edit | ![SubGhz Icon Badge] | Open a RAW `.sub` capture, find the real signal in the noise, trim it, merge files and decode a selection | [by Lechnio](https://github.com/Lechnio/SubGHz-RAW-Edit) |
+| SIM800 | ![GPIO Icon Badge] | Drive a SIM800C/SIM800L GSM module over the GPIO UART - calls, SMS, a phonebook shared with the Archive, USSD, DTMF and a raw AT terminal | by @xMasterX |
 | FindMy Flipper | ![BT Icon Badge] | BLE location beacon - makes the Flipper show up in Apple FindMy or Google Find My Device | [by @MatthewKuKanich](https://github.com/MatthewKuKanich/FindMyFlipper) |
 | USB Keyboard & Mouse | ![USB Icon Badge] | Use the Flipper as a HID remote control over USB | [![Official Icon Badge]](https://github.com/flipperdevices/flipperzero-firmware) |
 | Bluetooth Remote | ![BT Icon Badge] | Use the Flipper as a HID remote control over Bluetooth | [![Official Icon Badge]](https://github.com/flipperdevices/flipperzero-firmware) |
@@ -298,6 +299,7 @@ Enhance your Flipper Zero with apps and plugins created by the community:
 - [ESP32-CAM] Camera Suite: [How to use](https://github.com/CodyTolene/Flipper-Zero-Camera-Suite)
 - How to Upload `.bin` to ESP32/ESP8266: [Windows](https://github.com/SequoiaSan/Guide-How-To-Upload-bin-to-ESP8266-ESP32) | [FAP "ESP flasher"](https://github.com/0xchocolate/flipperzero-esp-flasher)
 - [GPIO] SentrySafe plugin: [How to use](/documentation/SentrySafe.md)
+- [SIM800] GSM module: [How to use, wiring and powering](/documentation/SIM800.md)
 
 
 ## 👨‍💻 Firmware & Development

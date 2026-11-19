@@ -8,6 +8,9 @@
 
 #define TAG "ArchiveSceneBrowser"
 
+// The phonebook entries the Phone tab lists are opened by the SIM800 app
+#define SIM800_APP_PATH EXT_PATH("apps/GPIO/sim800.fap")
+
 #define SCENE_STATE_DEFAULT      (0)
 #define SCENE_STATE_NEED_REFRESH (1)
 
@@ -27,6 +30,8 @@ static const char* archive_get_flipper_app_name(ArchiveFileTypeEnum file_type) {
         return "Infrared";
     case ArchiveFileTypeBadUsb:
         return "Bad USB";
+    case ArchiveFileTypePhone:
+        return SIM800_APP_PATH;
     case ArchiveFileTypeU2f:
         return "U2F";
     case ArchiveFileTypeT5577:

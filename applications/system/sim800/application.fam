@@ -1,0 +1,25 @@
+App(
+    appid="sim800",
+    name="SIM800",
+    apptype=FlipperAppType.EXTERNAL,
+    targets=["f7"],
+    entry_point="sim800_app",
+    requires=[
+        "gui",
+        "storage",
+        "dialogs",
+        "notification",
+        "power",
+    ],
+    stack_size=4 * 1024,
+    fap_icon="icon.png",
+    fap_icon_assets="icons",
+    fap_icon_assets_symbol="sim800",
+    fap_category="GPIO",
+    fap_author="@xMasterX",
+    fap_description="Drive a SIM800 GSM module over the GPIO UART: place and receive voice "
+    "calls, send SMS, keep a phonebook of numbers and SMS presets, and reach the module's "
+    "network, inbox, USSD, DTMF, audio and power commands from one place",
+    fap_version="1.0",
+    fap_exclude_libs=["gcc"],
+)
