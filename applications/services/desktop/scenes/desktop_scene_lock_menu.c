@@ -81,6 +81,8 @@ bool desktop_scene_lock_menu_on_event(void* context, SceneManagerEvent event) {
                 desktop->scene_manager, DesktopSceneMain);
             break;
         case DesktopLockMenuEventOpenQuickSettings:
+            scene_manager_search_and_switch_to_previous_scene(
+                desktop->scene_manager, DesktopSceneMain);
             scene_manager_next_scene(desktop->scene_manager, DesktopSceneQuickSettings);
             consumed = true;
             break;
