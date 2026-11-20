@@ -152,4 +152,8 @@ You can find out available options with `./fbt -h`.
 You can create customized firmware builds by modifying the list of apps to be included in the build. App presets are configured with the `FIRMWARE_APPS` option, which is a `map(configuration_name:str → application_list:tuple(str))`. To specify an app set to use in the build, set `FIRMWARE_APP_SET` to its name.
 For example, to build a firmware image with unit tests, run `./fbt COMPACT=1 DEBUG=0 FIRMWARE_APP_SET=unit_tests`. See [Unit tests](UnitTests.md) for why that build needs `DEBUG=0`.
 
+### Experimental F7 LTO
+
+`FW_LTO` is off by default. To opt in for a compact, non-debug F7 main firmware build, run `./fbt TARGET_HW=7 COMPACT=1 DEBUG=0 FW_LTO=1 firmware_dfu`. This adds `-flto=1` to built-in C/C++ compilation and the final main-firmware link only. Other targets and configurations, the RAM updater, libraries and external apps are unaffected. The opt-in path is experimental; download or install nothing solely on the basis of a successful build.
+
 Check out `fbt_options.py` for details.

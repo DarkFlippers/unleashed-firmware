@@ -159,7 +159,6 @@ void network_on_event(Network* network, const NetworkEvent* event) {
     }
 }
 
-void network_on_system_start(void* p) {
-    UNUSED(p);
+void network_on_system_start(void) {
     furi_record_create(RECORD_NETWORK, network_alloc());
 }

@@ -216,6 +216,17 @@ sources.extend(
 # Debug
 # print(fwenv.Dump())
 
+# Apply LTO to built-in C/C++ code and the final main-firmware link only.
+# SDK, external applications, static libraries and the RAM updater remain unchanged.
+if (
+    fwenv["FW_LTO"]
+    and fwenv["TARGET_HW"] == "7"
+    and fwenv["IS_BASE_FIRMWARE"]
+    and fwenv["COMPACT"]
+    and not fwenv["DEBUG"]
+):
+    fwenv.AppendUnique(CCFLAGS=["-flto=1"], LINKFLAGS=["-flto=1"])
+
 # Full firmware definition
 fwelf = fwenv["FW_ELF"] = fwenv.Program(
     "${FIRMWARE_BUILD_CFG}",
