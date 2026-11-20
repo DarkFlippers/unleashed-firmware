@@ -1,6 +1,6 @@
 ## Main changes
 - Current API: 88.27
-- Apps: Build tag (**19nov2026p4**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+- Apps: Build tag (**20nov2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 - SubGHz: **New protocol - BelKorn, 118 bits, rolling code with no encryption, 36 bit serial, with custom buttons** - (Korn, BelGate, Furniteh and other rebrands; the frame carries no manufacturer field, so they all read as `BelKorn`)
 - SubGHz: **Add Manually: `BelKorn`**
 - SubGHz: **The read list names the system a multi-system protocol decoded, instead of the protocol - CAME, Nice FloR-S, Faac SLH and KeeLoq**
@@ -29,6 +29,7 @@
 - SubGHz: **A settings file from another firmware no longer hides whole groups of protocols in Read - only the bits the `Ignore` options own are kept from a saved `IgnoreFilter`** (by @Lechnio | PR #1220)
 - RFID: **Fix Gallagher writes to EM4305 being shifted by one bit, so the written tag did not read back** (by @Firat17aze | PR #1217)
 - SubGHz: **`Signal settings` and `Radio settings` ship as embedded `.fal` plugins, so their scenes are only resident while the page is open** (by @Lechnio | PR #1222)
+- SubGHz: **Two more frequencies in the default list - 317.0 and 336.1 MHz**
 <br><br>
 
 ----
