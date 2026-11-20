@@ -1,4 +1,5 @@
 #include "bt_i.h"
+#include <toolbox/hybridus_color.h>
 #include "bt_keys_storage.h"
 
 #include <core/check.h>
@@ -520,6 +521,8 @@ static void bt_handle_reload_keys_settings(Bt* bt) {
 
 static void bt_init_keys_settings(Bt* bt) {
     Storage* storage = furi_record_open(RECORD_STORAGE);
+    // Internal storage is ready; load before the initial serial profile advertises.
+    hybridus_color_load();
     furi_pubsub_subscribe(storage_get_pubsub(storage), bt_storage_callback, bt);
 
     if(storage_sd_status(storage) != FSE_OK) {

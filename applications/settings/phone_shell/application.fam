@@ -1,0 +1,9 @@
+App(
+    appid="phone_shell",
+    name="Phone Shell",
+    apptype=FlipperAppType.SETTINGS,
+    entry_point="phone_shell_app",
+    requires=["gui", "storage"],
+    stack_size=1024,
+    order=45,
+)

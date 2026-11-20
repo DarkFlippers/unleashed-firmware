@@ -1,4 +1,5 @@
 #include <furi_hal_version.h>
+#include <toolbox/hybridus_color.h>
 #include <furi_hal_rtc.h>
 
 #include <furi.h>
@@ -247,7 +248,8 @@ uint8_t furi_hal_version_get_hw_body(void) {
 }
 
 FuriHalVersionColor furi_hal_version_get_hw_color(void) {
-    return furi_hal_version.board_color;
+    const uint8_t override = hybridus_color_get();
+    return override ? (FuriHalVersionColor)override : furi_hal_version.board_color;
 }
 
 uint8_t furi_hal_version_get_hw_connect(void) {
