@@ -289,9 +289,7 @@ static void expansion_storage_callback(const void* message, void* context) {
     }
 }
 
-void expansion_on_system_start(void* arg) {
-    UNUSED(arg);
-
+void expansion_on_system_start(void) {
     Expansion* instance = expansion_alloc();
     furi_record_create(RECORD_EXPANSION, instance);
     furi_thread_start(instance->thread);

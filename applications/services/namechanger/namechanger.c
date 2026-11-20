@@ -70,10 +70,9 @@ static bool namechanger_init() {
     return res;
 }
 
-int32_t namechanger_on_system_start(void* p) {
-    UNUSED(p);
+void namechanger_on_system_start(void) {
     if(furi_hal_rtc_get_boot_mode() != FuriHalRtcBootModeNormal) {
-        return 0;
+        return;
     }
 
     // Wait for all required services to start and create their records
@@ -82,7 +81,7 @@ int32_t namechanger_on_system_start(void* p) {
           !furi_record_exists(RECORD_STORAGE)) {
         timeout++;
         if(timeout > 250) {
-            return 0;
+            return;
         }
         furi_delay_ms(5);
     }
@@ -105,6 +104,4 @@ int32_t namechanger_on_system_start(void* p) {
         bt = NULL;
         furi_delay_ms(3);
     }
-
-    return 0;
 }

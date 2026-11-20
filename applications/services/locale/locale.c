@@ -106,7 +106,5 @@ void locale_format_date(
     }
 }
 
-int32_t locale_on_system_start(void* p) {
-    UNUSED(p);
-    return 0;
+void locale_on_system_start(void) {
 }
