@@ -9,6 +9,7 @@ App(
         "lfrfid",
         "nfc",
         "subghz",
+        "subghz_load_dangerous_settings",
         "bad_usb",
         "u2f",
         "archive",

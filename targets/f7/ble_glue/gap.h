@@ -104,6 +104,8 @@ void gap_stop_advertising(void);
 
 GapState gap_get_state(void);
 
+uint16_t gap_get_connection_handle(void);
+
 void gap_thread_stop(void);
 
 void gap_emit_ble_beacon_status_event(bool active);

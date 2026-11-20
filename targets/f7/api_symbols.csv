@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,88.27,,
+Version,+,88.28,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/applications.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
@@ -292,6 +292,7 @@ Header,+,lib/toolbox/value_index.h,,
 Header,+,lib/toolbox/varint.h,,
 Header,+,lib/toolbox/version.h,,
 Header,+,lib/u8g2/u8g2_glue.h,,
+Header,+,targets/f7/ble_glue/furi_ble/ams_client.h,,
 Header,+,targets/f7/ble_glue/furi_ble/event_dispatcher.h,,
 Header,+,targets/f7/ble_glue/furi_ble/gatt.h,,
 Header,+,targets/f7/ble_glue/furi_ble/profile_interface.h,,
@@ -708,6 +709,9 @@ Function,-,acosl,long double,long double
 Function,-,aligned_alloc,void*,"size_t, size_t"
 Function,+,aligned_free,void,void*
 Function,+,aligned_malloc,void*,"size_t, size_t"
+Function,+,ams_client_command,_Bool,AmsCommand
+Function,+,ams_client_get,void,AmsInfo*
+Function,+,ams_client_state_name,const char*,AmsState
 Function,-,arc4random,__uint32_t,
 Function,-,arc4random_buf,void,"void*, size_t"
 Function,-,arc4random_uniform,__uint32_t,__uint32_t
@@ -2135,6 +2139,7 @@ Function,-,gap_extra_beacon_set_config,_Bool,const GapExtraBeaconConfig*
 Function,-,gap_extra_beacon_set_data,_Bool,"const uint8_t*, uint8_t"
 Function,-,gap_extra_beacon_start,_Bool,
 Function,-,gap_extra_beacon_stop,_Bool,
+Function,-,gap_get_connection_handle,uint16_t,
 Function,-,gap_get_state,GapState,
 Function,-,gap_init,_Bool,"GapConfig*, const GapRootSecurityKeys*, GapEventCallback, void*"
 Function,-,gap_start_advertising,void,

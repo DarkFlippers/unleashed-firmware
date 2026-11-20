@@ -4,7 +4,7 @@
 
 #include <lib/subghz/blocks/custom_btn.h>
 
-#include <lib/subghz/devices/devices.c>
+#include <lib/subghz/devices/devices.h>
 #include "applications/main/subghz/helpers/subghz_txrx_i.h"
 #include "lib/subghz/blocks/generic.h"
 
