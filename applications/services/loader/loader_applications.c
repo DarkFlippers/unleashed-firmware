@@ -1,5 +1,6 @@
 #include "loader.h"
 #include "loader_applications.h"
+#include "loader_categories.h"
 #include <flipper_application/flipper_application.h>
 #include <assets_icons.h>
 #include <gui/gui.h>
@@ -16,6 +17,7 @@
 
 struct LoaderApplications {
     FuriThread* thread;
+    FuriString* start_path;
     void (*closed_cb)(void*);
     void* context;
 };
@@ -23,7 +25,21 @@ struct LoaderApplications {
 static int32_t loader_applications_thread(void* p);
 
 LoaderApplications* loader_applications_alloc(void (*closed_cb)(void*), void* context) {
+    return loader_applications_alloc_at_path(closed_cb, context, NULL);
+}
+
+LoaderApplications* loader_applications_alloc_at_path(
+    void (*closed_cb)(void*), void* context, const char* path) {
     LoaderApplications* loader_applications = malloc(sizeof(LoaderApplications));
+    loader_applications->start_path = furi_string_alloc_set(APPS_PATH);
+    if(loader_category_path_valid(path)) {
+        Storage* storage = furi_record_open(RECORD_STORAGE);
+        FileInfo info;
+        if(storage_common_stat(storage, path, &info) == FSE_OK && file_info_is_dir(&info)) {
+            furi_string_set(loader_applications->start_path, path);
+        }
+        furi_record_close(RECORD_STORAGE);
+    }
     loader_applications->thread =
         furi_thread_alloc_ex(TAG, 768, loader_applications_thread, (void*)loader_applications);
     loader_applications->closed_cb = closed_cb;
@@ -36,6 +52,7 @@ void loader_applications_free(LoaderApplications* loader_applications) {
     furi_assert(loader_applications);
     furi_thread_join(loader_applications->thread);
     furi_thread_free(loader_applications->thread);
+    furi_string_free(loader_applications->start_path);
     free(loader_applications);
 }
 
@@ -91,9 +108,9 @@ static void loader_applications_back_callback(void* context) {
     loader_applications_queue_path(app, NULL);
 }
 
-static LoaderApplicationsApp* loader_applications_app_alloc(void) {
+static LoaderApplicationsApp* loader_applications_app_alloc(const char* start_path) {
     LoaderApplicationsApp* app = malloc(sizeof(LoaderApplicationsApp)); //-V799
-    app->selected_path = furi_string_alloc_set(APPS_PATH);
+    app->selected_path = furi_string_alloc_set(start_path);
     app->storage = furi_record_open(RECORD_STORAGE);
     app->loader = furi_record_open(RECORD_LOADER);
     app->queue = furi_message_queue_alloc(PATH_QUEUE_SIZE, sizeof(FuriString*));
@@ -101,7 +118,7 @@ static LoaderApplicationsApp* loader_applications_app_alloc(void) {
 
     app->browser = file_browser_alloc(app->selected_path);
     file_browser_configure(
-        app->browser, ".fap|.js", APPS_PATH, true, false, &I_unknown_10px, true);
+        app->browser, ".fap|.js", start_path, true, false, &I_unknown_10px, true);
     file_browser_set_callback(app->browser, loader_applications_browser_callback, app);
     file_browser_set_item_callback(app->browser, loader_applications_item_callback, app);
     file_browser_start(app->browser, app->selected_path);
@@ -169,7 +186,8 @@ static void
 
 static int32_t loader_applications_thread(void* p) {
     LoaderApplications* loader_applications = p;
-    LoaderApplicationsApp* app = loader_applications_app_alloc();
+    LoaderApplicationsApp* app = loader_applications_app_alloc(
+        furi_string_get_cstr(loader_applications->start_path));
 
     FuriString* path;
     while(true) {

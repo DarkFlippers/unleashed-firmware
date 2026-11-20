@@ -737,10 +737,10 @@ static void loader_do_menu_closed(Loader* loader) {
     }
 }
 
-static void loader_do_applications_show(Loader* loader) {
+static void loader_do_applications_show(Loader* loader, const char* path) {
     if(!loader->loader_applications) {
         loader->loader_applications =
-            loader_applications_alloc(loader_applications_closed_callback, loader);
+            loader_applications_alloc_at_path(loader_applications_closed_callback, loader, path);
     }
 }
 
@@ -872,7 +872,7 @@ static LoaderMessageLoaderStatusResult loader_do_start_by_name(
 
         // check Applications
         if(strcmp(name, LOADER_APPLICATIONS_NAME) == 0) {
-            loader_do_applications_show(loader);
+            loader_do_applications_show(loader, args);
             status.value = loader_make_success_status(error_message);
             break;
         }
