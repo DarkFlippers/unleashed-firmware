@@ -10,7 +10,7 @@ App(
         "storage",
         "input",
     ],
-    provides=["desktop_settings"],
+    provides=["desktop_settings", "phone_shell"],
     conflicts=["updater"],
     stack_size=2 * 1024,
     order=60,
