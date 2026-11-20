@@ -5,8 +5,6 @@
 
 #include <flipper_format/flipper_format_i.h>
 
-#include <subghz/subghz_last_settings.h>
-
 void subghz_dangerous_freq() {
     bool is_extended_i = false;
 
@@ -22,15 +20,24 @@ void subghz_dangerous_freq() {
 
     flipper_format_free(fff_data_file);
 
-    // Load external module power amp setting (TODO: move to other place)
-    // TODO: Disable this when external module is not CC1101 E07
-    SubGhzLastSettings* last_settings = subghz_last_settings_alloc();
-    subghz_last_settings_load(last_settings, 0);
+    // Load the external module LED/amp setting straight from the Sub-GHz settings file,
+    // so this hook does not depend on the Sub-GHz app, which ships as a FAP.
+    bool leds_and_amp = true;
+    FlipperFormat* settings = flipper_format_file_alloc(storage);
+    FuriString* filetype = furi_string_alloc();
+    uint32_t version = 0;
+    if(flipper_format_file_open_existing(
+           settings, EXT_PATH("subghz/assets/last_subghz.settings")) &&
+       flipper_format_read_header(settings, filetype, &version) &&
+       furi_string_equal_str(filetype, "Flipper SubGhz Last Setting File") && version == 3) {
+        if(!flipper_format_read_bool(settings, "LedAndPowerAmp", &leds_and_amp, 1)) {
+            leds_and_amp = true;
+        }
+    }
+    furi_string_free(filetype);
+    flipper_format_free(settings);
 
-    // Set LED and Amp GPIO control state
-    furi_hal_subghz_set_ext_leds_and_amp(last_settings->leds_and_amp);
-
-    subghz_last_settings_free(last_settings);
+    furi_hal_subghz_set_ext_leds_and_amp(leds_and_amp);
 
     furi_record_close(RECORD_STORAGE);
 }

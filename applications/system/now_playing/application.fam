@@ -1,0 +1,13 @@
+App(
+    appid="now_playing",
+    name="Now Playing",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="now_playing_app",
+    requires=["gui", "bt"],
+    stack_size=2 * 1024,
+    fap_libs=["ble_profile"],
+    fap_category="Bluetooth",
+    fap_description="Song info and media control for a paired iPhone (Apple Media Service)",
+    fap_author="Jean Galea",
+    fap_version="1.0",
+)

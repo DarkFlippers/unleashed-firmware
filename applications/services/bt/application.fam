@@ -11,6 +11,7 @@ App(
     provides=[
         "cli_bt",
         "bt_settings",
+        "ams_cli_start",
     ],
     # The CLI command ships as a separate .fal - keep its source out of the service image.
     sources=["*.c*", "!bt_cli.c"],
@@ -30,4 +31,12 @@ App(
     entry_point="cli_bt_ep",
     requires=["cli"],
     sources=["bt_cli.c"],
+)
+
+App(
+    appid="ams_cli_start",
+    apptype=FlipperAppType.STARTUP,
+    entry_point="ams_cli_on_system_start",
+    requires=["bt"],
+    order=65,
 )
