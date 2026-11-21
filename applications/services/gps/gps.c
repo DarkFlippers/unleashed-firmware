@@ -3,10 +3,19 @@
 #include <furi.h>
 
 struct Gps {
+    // Guards the RPC bridge, and is held while a request goes out through it
     FuriMutex* mutex;
 
     GpsRpcSend rpc_send;
     void* rpc_send_context;
+
+    // Guards the location callback, and is held for as long as the callback runs. That is
+    // what lets gps_set_location_callback() promise the old callback is not running any
+    // more: an app frees the callback's context right after clearing it. Not the same mutex
+    // as the bridge's, because a callback is free to call gps_request_location() and the
+    // like, and an app that does so under a lock of its own must not find that lock's
+    // holder waiting here. Recursive, so a callback can replace or clear itself
+    FuriMutex* callback_mutex;
 
     GpsLocationCallback location_callback;
     void* location_context;
@@ -15,6 +24,7 @@ struct Gps {
 static Gps* gps_alloc(void) {
     Gps* gps = malloc(sizeof(Gps));
     gps->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
+    gps->callback_mutex = furi_mutex_alloc(FuriMutexTypeRecursive);
     gps->rpc_send = NULL;
     gps->rpc_send_context = NULL;
     gps->location_callback = NULL;
@@ -58,10 +68,12 @@ bool gps_report_location(Gps* gps, const GpsLocation* location) {
 
 void gps_set_location_callback(Gps* gps, GpsLocationCallback callback, void* context) {
     furi_check(gps);
-    furi_mutex_acquire(gps->mutex, FuriWaitForever);
+    // Waits here for a location that is being delivered: it still has the old callback and
+    // context in hand
+    furi_mutex_acquire(gps->callback_mutex, FuriWaitForever);
     gps->location_callback = callback;
     gps->location_context = context;
-    furi_mutex_release(gps->mutex);
+    furi_mutex_release(gps->callback_mutex);
 }
 
 void gps_set_rpc_bridge(Gps* gps, GpsRpcSend send, void* context) {
@@ -74,13 +86,13 @@ void gps_set_rpc_bridge(Gps* gps, GpsRpcSend send, void* context) {
 
 void gps_on_location(Gps* gps, GpsStatus status, const GpsLocation* location) {
     furi_check(gps);
-    furi_mutex_acquire(gps->mutex, FuriWaitForever);
-    GpsLocationCallback callback = gps->location_callback;
-    void* context = gps->location_context;
-    furi_mutex_release(gps->mutex);
-    if(callback) {
-        callback(status, location, context);
+    // Held across the call, not just across reading the pointers: released before it, the
+    // app could clear the callback and free the context while the call was still running
+    furi_mutex_acquire(gps->callback_mutex, FuriWaitForever);
+    if(gps->location_callback) {
+        gps->location_callback(status, location, gps->location_context);
     }
+    furi_mutex_release(gps->callback_mutex);
 }
 
 void gps_on_system_start(void* p) {

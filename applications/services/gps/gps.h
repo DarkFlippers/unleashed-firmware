@@ -195,6 +195,11 @@ bool gps_report_location(Gps* gps, const GpsLocation* location);
 
 /** Set location callback
  *
+ * Once this returns, the callback that was set before is not running and will not be
+ * called again, so its context can be freed. To give that guarantee it waits for a
+ * location that is being delivered: do not call it while holding a lock the callback
+ * takes. Calling it from inside the callback is fine.
+ *
  * @param      gps       Gps instance
  * @param      callback  GpsLocationCallback
  * @param      context   GpsLocationCallback context
