@@ -40,6 +40,11 @@ static const uint8_t keyboard_origin_x = 1;
 static const uint8_t keyboard_origin_y = 29;
 static const uint8_t keyboard_row_count = 3;
 
+// How far from the cursor a character can sit and still reach the text line. The line is
+// 120 px wide, so this is beyond anything a font can fit on it, and it is what keeps the
+// copy the draw callback works on bounded however long the text is
+#define TEXT_INPUT_LINE_CHARS_MAX 127
+
 #define ENTER_KEY     '\r'
 #define BACKSPACE_KEY '\b'
 
@@ -162,7 +167,10 @@ static void text_input_backspace_cb(TextInputModel* model) {
 
 static void text_input_view_draw_callback(Canvas* canvas, void* _model) {
     TextInputModel* model = _model;
-    uint8_t text_length = model->text_buffer ? strlen(model->text_buffer) : 0;
+    const char* text = model->text_buffer ? model->text_buffer : "";
+    // Not a uint8_t: a text of 256 characters or more would wrap, and the cursor is clamped
+    // to this just below
+    size_t text_length = strlen(text);
     uint8_t needed_string_width = canvas_width(canvas) - 8;
     uint8_t start_pos = 4;
 
@@ -175,11 +183,19 @@ static void text_input_view_draw_callback(Canvas* canvas, void* _model) {
     canvas_draw_str(canvas, 2, 8, model->header);
     elements_slightly_rounded_frame(canvas, 1, 12, 126, 15);
 
-    char buf[text_length + 1];
-    if(model->text_buffer) {
-        strlcpy(buf, model->text_buffer, sizeof(buf));
-    }
+    // Only the window around the cursor is copied, so the buffer does not grow with the
+    // text on this 2 KiB stack. What is cut off could never reach the line anyway
+    const size_t before = MIN(cursor_pos, (size_t)TEXT_INPUT_LINE_CHARS_MAX);
+    const size_t after = MIN(text_length - cursor_pos, (size_t)TEXT_INPUT_LINE_CHARS_MAX);
+
+    // The copy is edited in place below: the cursor mark is inserted into it and "..." is
+    // appended to it, so it needs room for both on top of the text and its terminator
+    char buf[before + after + 1 + 3 + 1];
+    memcpy(buf, text + cursor_pos - before, before + after);
+    buf[before + after] = '\0';
     char* str = buf;
+    // From here on the cursor is addressed inside the copy
+    cursor_pos = before;
 
     if(model->clear_default_text) {
         elements_slightly_rounded_box(
