@@ -530,8 +530,8 @@ int32_t bt_srv(void* p) {
     }
 
     if(furi_hal_bt_start_radio_stack()) {
-        bt_init_keys_settings(bt);
         furi_hal_bt_set_key_storage_change_callback(bt_on_key_storage_change_callback, bt);
+        bt_init_keys_settings(bt);
 
     } else {
         FURI_LOG_E(TAG, "Radio stack start failed");

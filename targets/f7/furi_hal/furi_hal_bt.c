@@ -38,6 +38,9 @@ static FuriHalBt furi_hal_bt = {
 
 static FuriHalBleProfileBase* current_profile = NULL;
 static GapConfig current_config = {0};
+// The BT service outlives the glue instance recreated by radio/profile restarts.
+static BleGlueKeyStorageChangedCallback key_storage_callback = NULL;
+static void* key_storage_context = NULL;
 
 void furi_hal_bt_init(void) {
     FURI_LOG_I(TAG, "Start BT initialization");
@@ -57,6 +60,9 @@ void furi_hal_bt_init(void) {
 
     // Start Core2
     ble_glue_init();
+    if(key_storage_callback) {
+        ble_glue_set_key_storage_changed_callback(key_storage_callback, key_storage_context);
+    }
 }
 
 void furi_hal_bt_lock_core2(void) {
@@ -283,6 +289,8 @@ void furi_hal_bt_set_key_storage_change_callback(
     BleGlueKeyStorageChangedCallback callback,
     void* context) {
     furi_check(callback);
+    key_storage_callback = callback;
+    key_storage_context = context;
     ble_glue_set_key_storage_changed_callback(callback, context);
 }
 
