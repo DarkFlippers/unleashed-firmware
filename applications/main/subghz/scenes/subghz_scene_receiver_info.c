@@ -27,8 +27,15 @@ void subghz_scene_receiver_info_callback(GuiButtonType result, InputType type, v
 
 static bool subghz_scene_receiver_info_update_parser(void* context) {
     SubGhz* subghz = context;
+    bool res = false;
 
-    if(subghz_txrx_load_decoder_by_name_protocol(
+    // RX goes on while this screen is up, and the receive callback keeps adding to the
+    // history from the radio worker thread, so the entry is read under the lock that
+    // callback writes under. The index is checked too: an entry that is not there reads as
+    // a parse error instead of as whatever lies past the end of the list
+    furi_mutex_acquire(subghz->history_mutex, FuriWaitForever);
+    if((subghz->idx_menu_chosen < subghz_history_get_item(subghz->history)) &&
+       subghz_txrx_load_decoder_by_name_protocol(
            subghz->txrx,
            subghz_history_get_protocol_name(subghz->history, subghz->idx_menu_chosen))) {
         // we are trying to deserialize without checking for errors, since it is assumed that we just received this chignal
@@ -49,9 +56,10 @@ static bool subghz_scene_receiver_info_update_parser(void* context) {
             preset->data,
             preset->data_size);
 
-        return true;
+        res = true;
     }
-    return false;
+    furi_mutex_release(subghz->history_mutex);
+    return res;
 }
 
 void subghz_scene_receiver_info_draw_widget(SubGhz* subghz) {
@@ -127,6 +135,12 @@ void subghz_scene_receiver_info_on_enter(void* context) {
 
     subghz_custom_btns_reset();
 
+    // The signal at idx_menu_chosen is open from here until the list is shown again. The
+    // receiver scene has set this already; the Decode RAW list has not
+    furi_mutex_acquire(subghz->history_mutex, FuriWaitForever);
+    subghz->history_item_open = true;
+    furi_mutex_release(subghz->history_mutex);
+
     subghz_scene_receiver_info_draw_widget(subghz);
 
     // A full history is not receiving, so nothing should blink here until it has room
@@ -151,9 +165,14 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
             // for all of this we use subghz_block_generic_global.endless_tx in protocols _yield function.
             subghz->state_notifications = SubGhzNotificationStateTx;
             subghz_block_generic_global.endless_tx = true;
-            if(!subghz_tx_start(
-                   subghz,
-                   subghz_history_get_raw_data(subghz->history, subghz->idx_menu_chosen))) {
+            // Looked up under the lock but sent outside it: starting TX stops RX, which
+            // joins the worker thread, and that thread may be waiting for the lock. The
+            // entry cannot go in the meantime, it is the open one
+            furi_mutex_acquire(subghz->history_mutex, FuriWaitForever);
+            FlipperFormat* fff_data =
+                subghz_history_get_raw_data(subghz->history, subghz->idx_menu_chosen);
+            furi_mutex_release(subghz->history_mutex);
+            if(!subghz_tx_start(subghz, fff_data)) {
                 subghz_txrx_rx_start(subghz->txrx);
                 subghz_txrx_hopper_unpause(subghz->txrx);
                 subghz->state_notifications = SubGhzNotificationStateRx;

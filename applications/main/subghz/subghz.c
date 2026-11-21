@@ -204,6 +204,7 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
             subghz->last_settings->preset_index,
             subghz->tx_power);
         subghz->history = subghz_history_alloc();
+        subghz->history_mutex = furi_mutex_alloc(FuriMutexTypeNormal);
     }
 
     subghz_rx_key_state_set(subghz, SubGhzRxKeyStateIDLE);
@@ -318,6 +319,7 @@ void subghz_free(SubGhz* subghz, bool alloc_for_tx_only) {
 
     if(!alloc_for_tx_only) {
         subghz_history_free(subghz->history);
+        furi_mutex_free(subghz->history_mutex);
     }
 
     free(subghz->gen_info);

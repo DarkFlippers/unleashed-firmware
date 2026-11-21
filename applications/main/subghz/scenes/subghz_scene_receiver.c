@@ -118,12 +118,19 @@ void subghz_scene_receiver_callback(SubGhzCustomEvent event, void* context) {
 // Drop the oldest signals until the incoming one fits, one at a time for as long as that
 // gets closer to room. While plain heap is what is short it always does. Once a wide enough
 // block is what is missing it only does when freed records merge, and a run of small ones
-// never will, so the loop stops there rather than empty the list for nothing
+// never will, so the loop stops there rather than empty the list for nothing.
+// Called with history_mutex held
 static uint16_t subghz_scene_receiver_delete_old_signals(SubGhz* subghz, uint8_t type) {
     uint16_t deleted = 0;
     size_t widest = 0;
     while((subghz_history_get_last_index(subghz->history) > 0) &&
           subghz_history_is_full(subghz->history, type)) {
+        // The signal that is open in Info is the one Send and Save act on, so it is never
+        // the one that goes. When it has become the oldest, the one after it goes instead
+        const bool open_is_oldest = subghz->history_item_open && (subghz->idx_menu_chosen == 0);
+        const uint16_t drop = open_is_oldest ? 1 : 0;
+        if(drop >= subghz_history_get_last_index(subghz->history)) break;
+
         const size_t free_block = memmgr_heap_get_max_free_block();
         if((deleted != 0) && (free_block <= widest) &&
            !subghz_history_needs_heap(subghz->history, type)) {
@@ -133,14 +140,23 @@ static uint16_t subghz_scene_receiver_delete_old_signals(SubGhz* subghz, uint8_t
         if(deleted == 0) {
             subghz_view_receiver_disable_draw_callback(subghz->subghz_receiver);
         }
-        subghz_history_delete_item(subghz->history, 0);
-        subghz_view_receiver_delete_item(subghz->subghz_receiver, 0);
+        subghz_history_delete_item(subghz->history, drop);
+        subghz_view_receiver_delete_item(subghz->subghz_receiver, drop);
         deleted++;
+        // The open signal slid down with everything above the hole
+        if(subghz->history_item_open && (drop < subghz->idx_menu_chosen)) {
+            subghz->idx_menu_chosen--;
+        }
     }
     if(deleted != 0) {
         subghz_view_receiver_enable_draw_callback(subghz->subghz_receiver);
         subghz_scene_receiver_update_statusbar(subghz);
-        subghz->idx_menu_chosen = subghz_view_receiver_get_idx_menu(subghz->subghz_receiver);
+        // With the list on screen the index is only the cursor's, kept for the next dialog.
+        // With a signal open it is that signal's, and the cursor cannot say where it went:
+        // off screen, the cursor still jumps to every new signal that lands under it
+        if(!subghz->history_item_open) {
+            subghz->idx_menu_chosen = subghz_view_receiver_get_idx_menu(subghz->subghz_receiver);
+        }
     }
     return deleted;
 }
@@ -154,6 +170,11 @@ static void subghz_scene_add_to_history_callback(
 
     // The check can be moved to /lib/subghz/receiver.c, but may result in false positives
     if((decoder_base->protocol->flag & subghz->ignore_filter) == 0) {
+        // A decoded signal gets here on the radio worker thread (a BinRAW one from this
+        // scene's tick), while the app's own thread reads the same list for Info, deletes
+        // from it on Hold Right and rebuilds the view from it
+        furi_mutex_acquire(subghz->history_mutex, FuriWaitForever);
+
         SubGhzHistory* history = subghz->history;
         FuriString* item_name = furi_string_alloc();
         FuriString* item_time = furi_string_alloc();
@@ -210,6 +231,8 @@ static void subghz_scene_add_to_history_callback(
         subghz_receiver_reset(receiver);
         furi_string_free(item_name);
         furi_string_free(item_time);
+
+        furi_mutex_release(subghz->history_mutex);
     } else {
         FURI_LOG_D(TAG, "%s protocol ignored", decoder_base->protocol->name);
     }
@@ -241,7 +264,11 @@ void subghz_scene_receiver_on_enter(void* context) {
 
     subghz_view_receiver_set_mode(subghz->subghz_receiver, SubGhzViewReceiverModeLive);
 
-    // Load history to receiver
+    // Load history to receiver. RX is still running when this scene is returned to from
+    // Info or Config, and the receive callback adds to both lists: a signal landing while
+    // they are being matched up here would be listed twice, and every entry after it would
+    // open the wrong signal
+    furi_mutex_acquire(subghz->history_mutex, FuriWaitForever);
     subghz_view_receiver_exit(subghz->subghz_receiver);
     for(uint16_t i = 0; i < subghz_history_get_item(history); i++) {
         furi_string_reset(item_name);
@@ -255,6 +282,11 @@ void subghz_scene_receiver_on_enter(void* context) {
             subghz_history_get_type_protocol(history, i));
         subghz_rx_key_state_set(subghz, SubGhzRxKeyStateAddKey);
     }
+    // Under the same lock as the rebuild: the cursor goes back onto the signal that was
+    // open, and only then does the index go back to following the cursor
+    subghz_view_receiver_set_idx_menu(subghz->subghz_receiver, subghz->idx_menu_chosen);
+    subghz->history_item_open = false;
+    furi_mutex_release(subghz->history_mutex);
     furi_string_free(item_name);
     furi_string_free(item_time);
 
@@ -280,13 +312,14 @@ void subghz_scene_receiver_on_enter(void* context) {
     //when RX went down
     subghz_receiver_reset(subghz_txrx_get_receiver(subghz->txrx));
 
-    subghz_view_receiver_set_idx_menu(subghz->subghz_receiver, subghz->idx_menu_chosen);
-
     //to use a universal decoder, we are looking for a link to it
     furi_check(
         subghz_txrx_load_decoder_by_name_protocol(subghz->txrx, SUBGHZ_PROTOCOL_BIN_RAW_NAME));
 
+    // RX is running again by now, and the bar is worked out from the history
+    furi_mutex_acquire(subghz->history_mutex, FuriWaitForever);
     subghz_scene_receiver_update_statusbar(subghz);
+    furi_mutex_release(subghz->history_mutex);
 
     subghz_view_receiver_set_lock(subghz->subghz_receiver, subghz_is_locked(subghz));
 
@@ -297,8 +330,17 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
     bool consumed = false;
     if(event.type == SceneManagerEventTypeCustom) {
+        furi_mutex_acquire(subghz->history_mutex, FuriWaitForever);
         // Save cursor position before going to any other dialog
         subghz->idx_menu_chosen = subghz_view_receiver_get_idx_menu(subghz->subghz_receiver);
+        if(event.event == SubGhzCustomEventViewReceiverOK) {
+            // Opened from this moment, not from when Info is entered: a signal landing in
+            // between moves the cursor off the last entry, and the index would follow it.
+            // Not opened at all if making room has just emptied the list
+            subghz->history_item_open =
+                (subghz->idx_menu_chosen < subghz_history_get_item(subghz->history));
+        }
+        furi_mutex_release(subghz->history_mutex);
 
         switch(event.event) {
         case SubGhzCustomEventViewReceiverBack:
@@ -321,19 +363,25 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
             break;
         case SubGhzCustomEventViewReceiverOK:
             // Show file info, scene: receiver_info
-            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReceiverInfo);
-            dolphin_deed(DolphinDeedSubGhzReceiverInfo);
+            if(subghz->history_item_open) {
+                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReceiverInfo);
+                dolphin_deed(DolphinDeedSubGhzReceiverInfo);
+            }
             consumed = true;
             break;
         case SubGhzCustomEventViewReceiverDeleteItem:
             subghz->state_notifications = SubGhzNotificationStateRx;
 
+            furi_mutex_acquire(subghz->history_mutex, FuriWaitForever);
+            // Read again now the lock is held, and used for both lists: a signal that landed
+            // since the read above may have moved the cursor, and the history and the view
+            // have to lose the same entry
+            subghz->idx_menu_chosen = subghz_view_receiver_get_idx_menu(subghz->subghz_receiver);
+
             subghz_view_receiver_disable_draw_callback(subghz->subghz_receiver);
 
             subghz_history_delete_item(subghz->history, subghz->idx_menu_chosen);
-            subghz_view_receiver_delete_item(
-                subghz->subghz_receiver,
-                subghz_view_receiver_get_idx_menu(subghz->subghz_receiver));
+            subghz_view_receiver_delete_item(subghz->subghz_receiver, subghz->idx_menu_chosen);
             subghz_view_receiver_enable_draw_callback(subghz->subghz_receiver);
 
             subghz_scene_receiver_update_statusbar(subghz);
@@ -341,6 +389,7 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
             if(subghz_history_get_last_index(subghz->history) == 0) {
                 subghz_rx_key_state_set(subghz, SubGhzRxKeyStateStart);
             }
+            furi_mutex_release(subghz->history_mutex);
             consumed = true;
             break;
         case SubGhzCustomEventViewReceiverConfig:
@@ -370,7 +419,10 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
             redraw = true;
         }
         if(redraw) {
+            // Taken after the hop above, never around it: a hop restarts RX
+            furi_mutex_acquire(subghz->history_mutex, FuriWaitForever);
             subghz_scene_receiver_update_statusbar(subghz);
+            furi_mutex_release(subghz->history_mutex);
         }
 
         SubGhzThresholdRssiData ret_rssi = subghz_threshold_get_rssi_data(

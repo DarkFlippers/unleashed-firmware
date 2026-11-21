@@ -116,6 +116,19 @@ struct SubGhz {
     SubGhzLoadTypeFile load_type_file;
     uint8_t tx_power;
     void* rpc_ctx;
+
+    // Kept at the end: the Add Manually and Frequency Analyzer plugins are loaded from the
+    // SD card and read this struct, and fields added here leave every offset they know alone
+
+    // The read list is written from two threads: by the radio worker, in the receive
+    // callback, and by the GUI. This serialises them, and idx_menu_chosen with the list it
+    // indexes. Never hold it across anything that stops RX: stopping joins the worker
+    // thread, and that thread may be waiting for this very mutex
+    FuriMutex* history_mutex;
+    // Set once Info has the signal at idx_menu_chosen open, until the list is shown again.
+    // Send and Save act on that signal, so while this is set it is never dropped to make
+    // room, and idx_menu_chosen follows it instead of following the list's cursor
+    bool history_item_open;
 };
 
 #ifdef __cplusplus
