@@ -8,6 +8,7 @@ extern void vPortFree(void* pv);
 extern size_t xPortGetFreeHeapSize(void);
 extern size_t xPortGetTotalHeapSize(void);
 extern size_t xPortGetMinimumEverFreeHeapSize(void);
+extern size_t memmgr_heap_get_block_size(const void* pv);
 
 void* malloc(size_t size) {
     return pvPortMalloc(size);
@@ -25,7 +26,11 @@ void* realloc(void* ptr, size_t size) {
 
     void* p = pvPortMalloc(size);
     if(ptr != NULL) {
-        memcpy(p, ptr, size);
+        // Only what the old block holds can be copied. When the block grows, `size` is the
+        // new length, and reading that much out of the old one runs past its end. The
+        // rest of the new block is already zeroed by pvPortMalloc()
+        const size_t old_size = memmgr_heap_get_block_size(ptr);
+        memcpy(p, ptr, (old_size < size) ? old_size : size);
         vPortFree(ptr);
     }
 
@@ -33,7 +38,12 @@ void* realloc(void* ptr, size_t size) {
 }
 
 void* calloc(size_t count, size_t size) {
-    return pvPortMalloc(count * size);
+    size_t total;
+    // A product that wraps around would hand back a block far smaller than the caller
+    // believes it has. No heap can meet such a request, so it ends the way an
+    // allocation that does not fit does, instead of in a silent overflow later
+    furi_check(!__builtin_mul_overflow(count, size, &total), "out of memory");
+    return pvPortMalloc(total);
 }
 
 char* strdup(const char* s) {
