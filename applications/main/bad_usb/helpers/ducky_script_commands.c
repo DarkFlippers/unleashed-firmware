@@ -219,7 +219,7 @@ static int32_t ducky_fnc_waitforbutton(BadUsbScript* bad_usb, const char* line, 
 static int32_t ducky_fnc_mouse_scroll(BadUsbScript* bad_usb, const char* line, int32_t param) {
     UNUSED(param);
 
-    line = &line[strcspn(line, " ") + 1];
+    line = &line[ducky_get_command_len(line) + 1];
     int32_t mouse_scroll_dist = 0;
 
     if(strint_to_int32(line, NULL, &mouse_scroll_dist, 10) != StrintParseNoError) {
@@ -234,7 +234,7 @@ static int32_t ducky_fnc_mouse_scroll(BadUsbScript* bad_usb, const char* line, i
 static int32_t ducky_fnc_mouse_move(BadUsbScript* bad_usb, const char* line, int32_t param) {
     UNUSED(param);
 
-    line = &line[strcspn(line, " ") + 1];
+    line = &line[ducky_get_command_len(line) + 1];
     int32_t mouse_move_x = 0;
     int32_t mouse_move_y = 0;
 
@@ -242,7 +242,11 @@ static int32_t ducky_fnc_mouse_move(BadUsbScript* bad_usb, const char* line, int
         return ducky_error(bad_usb, "Invalid Number %s", line);
     }
 
-    line = &line[strcspn(line, " ") + 1];
+    if(ducky_get_command_len(line) == 0) {
+        return ducky_error(bad_usb, "Invalid Number %s", line);
+    }
+
+    line = &line[ducky_get_command_len(line) + 1];
 
     if(strint_to_int32(line, NULL, &mouse_move_y, 10) != StrintParseNoError) {
         return ducky_error(bad_usb, "Invalid Number %s", line);
