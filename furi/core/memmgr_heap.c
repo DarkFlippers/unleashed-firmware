@@ -290,6 +290,28 @@ size_t memmgr_heap_get_max_free_block(void) {
     return heap_stats.xSizeOfLargestFreeBlockInBytes;
 }
 
+// Bytes the caller may use in a block this heap handed out, which is what it asked for
+// rounded up to the alignment. Zero for anything that is not a live block: vPortFree()
+// lets such a pointer through in a release build, so this does not crash on one either.
+// For realloc() in memmgr.c only, hence no prototype in memmgr_heap.h, which is in the SDK
+size_t memmgr_heap_get_block_size(const void* pv) {
+    if(pv == NULL) return 0;
+
+    const BlockLink_t* pxLink = (const void*)((const uint8_t*)pv - xHeapStructSize);
+
+    heapVALIDATE_BLOCK_POINTER(pxLink);
+    configASSERT(heapBLOCK_IS_ALLOCATED(pxLink) != 0);
+    configASSERT(pxLink->pxNextFreeBlock == heapPROTECT_BLOCK_POINTER(NULL));
+
+    if(heapBLOCK_IS_ALLOCATED(pxLink) == 0) return 0;
+    if(pxLink->pxNextFreeBlock != heapPROTECT_BLOCK_POINTER(NULL)) return 0;
+
+    const size_t xBlockSize = pxLink->xBlockSize & ~heapBLOCK_ALLOCATED_BITMASK;
+    if(heapSUBTRACT_WILL_UNDERFLOW(xBlockSize, xHeapStructSize) != 0) return 0;
+
+    return xBlockSize - xHeapStructSize;
+}
+
 void memmgr_heap_printf_free_blocks(void) {
     BlockLink_t* pxBlock;
     //can be enabled once we can do printf with a locked scheduler
