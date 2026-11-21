@@ -3,6 +3,7 @@
 
 #include <lib/subghz/transmitter.h>
 #include <lib/subghz/devices/devices.h>
+#include <lib/subghz/devices/cc1101_int/cc1101_int_interconnect.h>
 #include <lib/subghz/protocols/protocol_items.h>
 
 #include <flipper_format/flipper_format_i.h>
@@ -449,11 +450,12 @@ static void js_subghz_setup(struct mjs* mjs) {
     js_subghz->radio_device =
         radio_device_loader_set(js_subghz->radio_device, SubGhzRadioDeviceTypeExternalCC1101);
 
-    if(!subghz_devices_is_connect(js_subghz->radio_device)) {
-        js_subghz->is_external = true;
-    } else {
-        js_subghz->is_external = false;
-    }
+    // radio_device_loader_set falls back to the internal radio when no external
+    // CC1101 answers, and the internal radio always reports itself as connected,
+    // so is_connect() cannot tell the two apart: it said "internal" even with a
+    // module attached. Compare the device the loader actually handed back.
+    js_subghz->is_external =
+        (js_subghz->radio_device != subghz_devices_get_by_name(SUBGHZ_DEVICE_CC1101_INT_NAME));
 
     js_subghz->state = JsSubghzRadioStateIDLE;
     js_subghz->frequency = 433920000;

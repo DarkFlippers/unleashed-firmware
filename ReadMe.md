@@ -25,6 +25,9 @@ This firmware is a fork of the original (OFW) version of [flipperdevices/flipper
 ## 🚀 Usage
 
 Before getting started:
+- **Unleashed Wiki:**  
+  Guides, app documentation and settings for this firmware - [wiki.unleashedflip.com](https://wiki.unleashedflip.com)
+
 - **Review the Official Documentation:** [docs.flipper.net](https://docs.flipper.net)
 
 - **Installation Guide & Version Info:**  

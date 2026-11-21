@@ -320,16 +320,30 @@ bool subghz_scene_signal_settings_on_event(void* context, SceneManagerEvent even
                 }
                 break;
             // edit button
-            case 2:
+            case 2: {
                 subghz_block_generic_global_button_override_set(button);
                 // save counter mult to rewrite subghz singnal without changing counter
                 int32_t tmp_counter = furi_hal_subghz_get_rolling_counter_mult();
                 furi_hal_subghz_set_rolling_counter_mult(0);
-                subghz_tx_start(subghz, subghz->txrx->fff_data);
+                bool sent = subghz_tx_start(subghz, subghz->txrx->fff_data);
                 subghz_txrx_stop(subghz->txrx);
                 // restore counter mult
                 furi_hal_subghz_set_rolling_counter_mult(tmp_counter);
+
+                // The encoder writes the new button into fff_data, but the save-back
+                // on TX stop only runs for dynamic protocols, where a rolling counter
+                // has to be kept. A static protocol has no counter to keep, so nothing
+                // flushed the buffer: the new button went on the air once and the file
+                // kept the old one. Flush it here for those protocols.
+                // Not when the send was refused (frequency outside the TX range, no
+                // memory): nothing was transmitted and the user saw the error, so the
+                // file is left alone.
+                if(sent &&
+                   subghz->txrx->decoder_result->protocol->type != SubGhzProtocolTypeDynamic) {
+                    subghz_save_to_file(subghz);
+                }
                 break;
+            }
 
             default:
                 break;

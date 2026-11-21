@@ -8,6 +8,25 @@
 
 ### **If installing for first time - Update to the latest official firmware before proceeding**
 ### **If you are already using unleashed - no need to install any other FW or version before installing update, just install latest version on top of your current one, all will be fine**
+### **Recommended way to install and update - [qUnleashed app](#with-qunleashed-app-recommended), works on Android, iOS, Windows, macOS and Linux**
+
+<br>
+<br>
+
+## With qUnleashed app (recommended)
+
+- Be sure you updated to latest official release before(only if installing for the first time), and verify that microSD card is installed
+- Install qUnleashed on your phone or computer - [Download qUnleashed](https://github.com/DarkFlippers/qUnleashed/releases) (Android, iOS, Windows, macOS, Linux)
+- Connect your device over USB, or over Bluetooth(BLE) - on iOS only Bluetooth is available
+- Open the firmware updater in the app
+- Select Unleashed `release` or `dev` channel
+- Select build variant - base, extra apps or compact
+- Press install button and wait for all stages
+- And if all flashed successfully - you will have all needed assets pre installed
+- Done
+- If your device is bricked and does not boot - use `Repair from DFU mode` in the app, it re-flashes the device over USB
+- More about the app -> [qUnleashed](https://github.com/DarkFlippers/qUnleashed)
+
 
 <br>
 <br>
@@ -140,3 +159,5 @@ after that on web updater page - press `Connect` button
 - ## [Read instructions how to use plugins and more](https://github.com/DarkFlippers/unleashed-firmware#instructions)
 
 - ## [How To: Configure Sub-GHz Remote App](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemotePlugin.md)
+
+- ## [How To: Use Sub-GHz Signal Settings (counter and button editor)](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzSignalSettings.md)
