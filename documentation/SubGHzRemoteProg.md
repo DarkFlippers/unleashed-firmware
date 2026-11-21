@@ -1008,6 +1008,7 @@ Lots of receivers are programmed by pressing a button the original remote does n
 | `KL: FAAC RC,XT 433/868MHz` | `0xB` | Right Arrow | buttons 1+2 held (master press) |
 | `KL: Genius TX4RC 433M.` | `0xB` | Right Arrow | programming mode button |
 | `KL: Monarch 433MHz` | `0xB` | *no arrow sends it* | set the button code by hand in signal settings |
+| `KL: FAAC FIX` | `0x9` | Right Arrow | extra / hidden button (unconfirmed) |
 | `KL: Novoferm 433MHz` | `0x9` | Right Arrow | extra / hidden button |
 | `KL: Stilmatic 433MHz` | `0x9` | Right Arrow | extra / hidden button |
 | `KL: Sommer` 434/868MHz and `fm2` | `0x6` | Right Arrow | extra / hidden button |

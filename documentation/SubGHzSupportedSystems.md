@@ -135,6 +135,7 @@ The following manufacturers have KeeLoq support in Unleashed firmware:
 - Elvox (KeeLoq, 64 bits) (normal learning)
 - ET Blue (KeeLoq, 64 bits) (10bit serial part in Hop - normal learning)
 - ET Blue Mix (KeeLoq, 64 bits) (10bit serial part in Hop - normal learning)
+- FAAC FIX - `433.92MHz` `AM650` (KeeLoq, 64 bits) (10bit serial part in Hop - normal learning) (same scheme as Phantom / Hiland: the 12bit discriminator is kept in `Seed`, its low 10 bits are `serial & 0x3FF` and Add Manually asks for it as `DISC.`)
 - FAAC RC,XT - `433.92MHz, 868MHz` `AM650` (KeeLoq, 64 bits) (12bit serial part in Hop - normal learning)
 - Fadini (KeeLoq, 64 bits) (12bit serial part in Hop - simple learning)
 - Genius Bravo - `433.92MHz` `AM650` (KeeLoq, 64 bits) (12bit serial part in Hop - normal learning) (Genius ECHO, Genius Bravo (Button code 0xB for prog. mode))
