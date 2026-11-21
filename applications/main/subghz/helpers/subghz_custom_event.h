@@ -99,6 +99,7 @@ typedef enum {
     SetTypeErreka,
     SetTypeET_Blue,
     SetTypeET_Blue_Mix,
+    SetTypeFaacFix,
     SetTypeFAACRCXT,
     SetTypeFaacSLH,
     SetTypeFaacTm,

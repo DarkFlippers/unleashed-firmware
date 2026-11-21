@@ -384,6 +384,7 @@ static bool subghz_protocol_keeloq_gen_data(
             klq_last_custom_btn = 0xB;
         } else if(
             (strcmp(instance->manufacture_name, "Novoferm") == 0) ||
+            (strcmp(instance->manufacture_name, "FAAC_FIX") == 0) ||
             (strcmp(instance->manufacture_name, "Stilmatic") == 0)) {
             klq_last_custom_btn = 0x9;
         } else if(
@@ -638,9 +639,11 @@ static bool subghz_protocol_keeloq_gen_data(
                     monarch_disc = KEELOQ_MONARCH_DISCRIMINATOR_A;
                 }
                 decrypt = btn << 28 | (uint32_t)monarch_disc << 16 | instance->generic.cnt;
-            } else if(strcmp(instance->manufacture_name, "Phantom_Hiland") == 0) {
-                // Phantom/Hiland -> 10 bit serial in hop, top 2 disc bits from seed -
-                // normal learning
+            } else if(
+                (strcmp(instance->manufacture_name, "Phantom_Hiland") == 0) ||
+                (strcmp(instance->manufacture_name, "FAAC_FIX") == 0)) {
+                // Phantom/Hiland and FAAC_FIX -> 10 bit serial in hop, top 2 disc bits from
+                // seed - normal learning
                 decrypt = btn << 28 |
                           (uint32_t)subghz_protocol_keeloq_phantom_hiland_disc(
                               instance->generic.serial, instance->generic.seed)
@@ -1504,9 +1507,10 @@ static uint32_t subghz_protocol_keeloq_check_remote_controller_selector(
                             keystore->mfname = *manufacture_name;
                             return decrypt;
                         }
-                    } else if((strcmp(
-                                   furi_string_get_cstr(manufacture_code->name),
-                                   "Phantom_Hiland") == 0)) {
+                    } else if(
+                        (strcmp(furi_string_get_cstr(manufacture_code->name), "Phantom_Hiland") ==
+                         0) ||
+                        (strcmp(furi_string_get_cstr(manufacture_code->name), "FAAC_FIX") == 0)) {
                         if(subghz_protocol_keeloq_check_decrypt_phantom_hiland(
                                instance, decrypt, btn, fix)) {
                             *manufacture_name = furi_string_get_cstr(manufacture_code->name);
@@ -1914,6 +1918,7 @@ SubGhzProtocolStatus subghz_protocol_decoder_keeloq_serialize(
        (strcmp(instance->manufacture_name, "Erreka") == 0) ||
        (strcmp(instance->manufacture_name, "Monarch") == 0) ||
        (strcmp(instance->manufacture_name, "Phantom_Hiland") == 0) ||
+       (strcmp(instance->manufacture_name, "FAAC_FIX") == 0) ||
        (strcmp(instance->manufacture_name, "Dea_Mio") == 0)) {
         uint8_t seed_data[sizeof(uint32_t)] = {0};
         for(size_t i = 0; i < sizeof(uint32_t); i++) {
@@ -2296,6 +2301,7 @@ void subghz_protocol_decoder_keeloq_get_string(void* context, FuriString* output
         }
     } else if(
         (strcmp(instance->manufacture_name, "Phantom_Hiland") == 0) ||
+        (strcmp(instance->manufacture_name, "FAAC_FIX") == 0) ||
         (strcmp(instance->manufacture_name, "Dea_Mio") == 0)) {
         // Ds: the discriminator, whose top 2 bits are not derivable from the serial
         subghz_block_generic_global.cnt_is_available = true;

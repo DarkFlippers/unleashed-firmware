@@ -44,6 +44,7 @@ static const char* submenu_names[SetTypeMAX] = {
     [SetTypeErreka] = "Erreka",
     [SetTypeET_Blue] = "KL: ET Blue",
     [SetTypeET_Blue_Mix] = "KL: ET Blue Mix",
+    [SetTypeFaacFix] = "KL: FAAC FIX",
     [SetTypeFAACRCXT] = "KL: FAAC RC,XT",
     [SetTypeFaacSLH] = "FAAC SLH",
     [SetTypeFaacTm] = "FAAC TM",

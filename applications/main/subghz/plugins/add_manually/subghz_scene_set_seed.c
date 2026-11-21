@@ -84,6 +84,7 @@ void subghz_scene_set_seed_on_enter(void* context) {
         (subghz->gen_info->type == GenKeeloqSeed) &&
         ((strcmp(subghz->gen_info->keeloq_seed.manuf, "Monarch") == 0) ||
          (strcmp(subghz->gen_info->keeloq_seed.manuf, "Phantom_Hiland") == 0) ||
+         (strcmp(subghz->gen_info->keeloq_seed.manuf, "FAAC_FIX") == 0) ||
          (strcmp(subghz->gen_info->keeloq_seed.manuf, "Dea_Mio") == 0))) {
         header = "Enter DISC. in hex";
     }

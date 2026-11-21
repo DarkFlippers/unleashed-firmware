@@ -883,6 +883,18 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .keeloq.cnt = 0x03,
             .keeloq.manuf = "Verex"};
         break;
+    case SetTypeFaacFix:
+        // Seed carries the 12 bit discriminator: serial & 0x3FF below both OVR bits, set
+        gen_info = (GenInfo){
+            .type = GenKeeloqSeed,
+            .mod = "AM650",
+            .freq = 433920000,
+            .keeloq_seed.serial = (key & 0x0FFFFFFF),
+            .keeloq_seed.btn = 0x02,
+            .keeloq_seed.cnt = 0x03,
+            .keeloq_seed.seed = (key & 0x3FF) | 0xC00,
+            .keeloq_seed.manuf = "FAAC_FIX"};
+        break;
     case SetTypeFAACRCXT:
         gen_info = (GenInfo){
             .type = GenKeeloq,
