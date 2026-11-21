@@ -1,6 +1,6 @@
 ## Main changes
 - Current API: 88.27
-- Apps: Build tag (**20nov2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+- Apps: Build tag (**21nov2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 - SubGHz: **New protocol - BelKorn, 118 bits, rolling code with no encryption, 36 bit serial, with custom buttons** - (Korn, BelGate, Furniteh and other rebrands; the frame carries no manufacturer field, so they all read as `BelKorn`)
 - SubGHz: **Add Manually: `BelKorn`**
 - SubGHz: **The read list names the system a multi-system protocol decoded, instead of the protocol - CAME, Nice FloR-S, Faac SLH and KeeLoq**
@@ -15,8 +15,11 @@
 - Apps: **New app - SIM800, drives a SIM800 GSM module over the GPIO UART: voice calls, SMS, a phonebook of numbers and SMS presets, and the module's network, inbox, USSD, DTMF, audio and power commands** - `Apps -> GPIO -> SIM800`, see [wiring and powering](/documentation/SIM800.md)
 - Archive: **New `Phone` tab for the SIM800 phonebook - a `.phone` entry opens straight in the app**
 - BadUSB: **New `DUCKY_LANG` script command - a script picks its own keyboard layout from `badusb/assets/layouts/<name>.kl`, instead of every script running on the one layout set in the app** (the native `.kl` map is ASCII only, and a missing or invalid name falls back to the built-in en-US) (by @ANTONiO-eagle | PR #1224 | Closes #1218)
+- SubGHz: **New KeeLoq manufacturer - FAAC FIX, with `KL: FAAC FIX` in Add Manually and custom button support** (thanks @Anat01y)
+- JS: **New `usbdisk.createImage(path, size)` method to create empty disk images**
 ## Other changes
 - OFW: fix: resolve PVS-Studio warnings reported on dev
+- OFW: Fix BLE key storage callback lifetime across radio restarts
 - NFC: **Fix third-party NFC apps reading the wrong NTAG/Ultralight pages (Weebo "Wrong password" on every amiibo) - the Ultralight AES fields no longer sit in the middle of `MfUltralightData`**
 - SubGHz: **Fix the read list beep going missing with `Delete old signals` on and memory full**
 - SubGHz: **A signal turned away by a full read list now buzzes with `Delete old signals` on too**
@@ -30,6 +33,13 @@
 - RFID: **Fix Gallagher writes to EM4305 being shifted by one bit, so the written tag did not read back** (by @Firat17aze | PR #1217)
 - SubGHz: **`Signal settings` and `Radio settings` ship as embedded `.fal` plugins, so their scenes are only resident while the page is open** (by @Lechnio | PR #1222)
 - SubGHz: **Two more frequencies in the default list - 317.0 and 336.1 MHz**
+- SubGHz: **Fix `Edit button` in Signal Settings not saving the new button to the file for static protocols**
+- JS: **Fix `subghz.isExternal()` reporting internal radio when an external CC1101 is connected**
+- GUI: **Fix TextInput writing past its buffer when drawing the cursor and mishandling 256+ character strings** (by @jeje77131 | PR #1239)
+- SubGHz: **Serialize receive history between the worker and GUI, and keep the open signal from being dropped when `Delete old signals` is on** (by @jeje77131 | PR #1240)
+- GPS, Network: **Unsubscribing now waits for a running callback to finish** (by @jeje77131 | PR #1241)
+- SubGHz: **Fix renaming a saved file with a 64+ character name dropping its `.sub` extension** (by @jeje77131 | PR #1242)
+- Furi: **`realloc()` copies only the old block when growing, and `calloc()` checks for overflow** (by @jeje77131 | PR #1243)
 <br><br>
 
 ----
