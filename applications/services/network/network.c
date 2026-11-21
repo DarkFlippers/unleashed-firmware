@@ -4,10 +4,19 @@
 #include <string.h>
 
 struct Network {
+    // Guards the RPC bridge, and is held while a request goes out through it
     FuriMutex* mutex;
 
     NetworkRpcSend rpc_send;
     void* rpc_send_context;
+
+    // Guards the event callback, and is held for as long as the callback runs. That is what
+    // lets network_set_event_callback() promise the old callback is not running any more:
+    // an app frees the callback's context right after clearing it. Not the same mutex as
+    // the bridge's, because a callback is free to call network_send() and the like, and an
+    // app that does so under a lock of its own must not find that lock's holder waiting
+    // here. Recursive, so a callback can replace or clear itself
+    FuriMutex* callback_mutex;
 
     NetworkEventCallback event_callback;
     void* event_context;
@@ -16,6 +25,7 @@ struct Network {
 static Network* network_alloc(void) {
     Network* network = malloc(sizeof(Network));
     network->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
+    network->callback_mutex = furi_mutex_alloc(FuriMutexTypeRecursive);
     network->rpc_send = NULL;
     network->rpc_send_context = NULL;
     network->event_callback = NULL;
@@ -133,10 +143,12 @@ bool network_websocket_open(
 
 void network_set_event_callback(Network* network, NetworkEventCallback callback, void* context) {
     furi_check(network);
-    furi_mutex_acquire(network->mutex, FuriWaitForever);
+    // Waits here for an event that is being delivered: it still has the old callback and
+    // context in hand
+    furi_mutex_acquire(network->callback_mutex, FuriWaitForever);
     network->event_callback = callback;
     network->event_context = context;
-    furi_mutex_release(network->mutex);
+    furi_mutex_release(network->callback_mutex);
 }
 
 void network_set_rpc_bridge(Network* network, NetworkRpcSend send, void* context) {
@@ -150,13 +162,13 @@ void network_set_rpc_bridge(Network* network, NetworkRpcSend send, void* context
 void network_on_event(Network* network, const NetworkEvent* event) {
     furi_check(network);
     furi_check(event);
-    furi_mutex_acquire(network->mutex, FuriWaitForever);
-    NetworkEventCallback callback = network->event_callback;
-    void* context = network->event_context;
-    furi_mutex_release(network->mutex);
-    if(callback) {
-        callback(event, context);
+    // Held across the call, not just across reading the pointers: released before it, the
+    // app could clear the callback and free the context while the call was still running
+    furi_mutex_acquire(network->callback_mutex, FuriWaitForever);
+    if(network->event_callback) {
+        network->event_callback(event, network->event_context);
     }
+    furi_mutex_release(network->callback_mutex);
 }
 
 void network_on_system_start(void* p) {
