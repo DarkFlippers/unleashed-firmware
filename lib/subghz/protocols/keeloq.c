@@ -2193,13 +2193,6 @@ void subghz_protocol_decoder_keeloq_get_string(void* context, FuriString* output
     hopdecrypt = subghz_protocol_keeloq_check_remote_controller(
         &instance->generic, instance->keystore, &instance->manufacture_name);
 
-    /* A half-rate frame is a Crypt Key remote: no manufacturer key in the keystore decrypts
-     * one, so the rate it arrived at is the only thing naming it. Display only - the branches
-     * below still switch on the real name, and the counter stays unreadable either way. */
-    const char* mf_display = (subghz_protocol_keeloq_te_nominal(instance->te) == KEELOQ_TE_FAST) ?
-                                 "Crypt Key" :
-                                 instance->manufacture_name;
-
     uint32_t code_found_hi = instance->generic.data >> 32;
     uint32_t code_found_lo = instance->generic.data & 0x00000000ffffffff;
 
@@ -2231,7 +2224,7 @@ void subghz_protocol_decoder_keeloq_get_string(void* context, FuriString* output
             instance->generic.cnt,
             code_found_reverse_lo,
             instance->generic.btn,
-            mf_display);
+            instance->manufacture_name);
     } else if(strcmp(instance->manufacture_name, "HCS101") == 0) {
         // Counter is present but not encrypted
         subghz_block_generic_global.cnt_is_available = true;
@@ -2252,7 +2245,7 @@ void subghz_protocol_decoder_keeloq_get_string(void* context, FuriString* output
             instance->generic.cnt,
             code_found_reverse_lo,
             instance->generic.btn,
-            mf_display);
+            instance->manufacture_name);
     } else if(
         (strcmp(instance->manufacture_name, "BFT") == 0) ||
         (strcmp(instance->manufacture_name, "Erreka") == 0)) {
@@ -2278,7 +2271,7 @@ void subghz_protocol_decoder_keeloq_get_string(void* context, FuriString* output
                 instance->generic.cnt,
                 code_found_reverse_lo,
                 instance->generic.btn,
-                mf_display,
+                instance->manufacture_name,
                 instance->generic.seed);
         } else {
             furi_string_cat_printf(
@@ -2296,7 +2289,7 @@ void subghz_protocol_decoder_keeloq_get_string(void* context, FuriString* output
                 instance->generic.cnt,
                 hopdecrypt,
                 instance->generic.btn,
-                mf_display,
+                instance->manufacture_name,
                 instance->generic.seed);
         }
     } else if(
@@ -2322,7 +2315,7 @@ void subghz_protocol_decoder_keeloq_get_string(void* context, FuriString* output
             instance->generic.cnt,
             hopdecrypt,
             instance->generic.btn,
-            mf_display,
+            instance->manufacture_name,
             instance->generic.seed);
     } else if(strcmp(instance->manufacture_name, "Unknown") == 0) {
         // No counter info with unknown MF
@@ -2342,7 +2335,7 @@ void subghz_protocol_decoder_keeloq_get_string(void* context, FuriString* output
             code_found_reverse_hi,
             code_found_reverse_lo,
             instance->generic.btn,
-            mf_display);
+            instance->manufacture_name);
     } else {
         // All other known MF with counter info, allow counter edit
         subghz_block_generic_global.cnt_is_available = true;
@@ -2363,6 +2356,6 @@ void subghz_protocol_decoder_keeloq_get_string(void* context, FuriString* output
             instance->generic.cnt,
             hopdecrypt,
             instance->generic.btn,
-            mf_display);
+            instance->manufacture_name);
     }
 }
