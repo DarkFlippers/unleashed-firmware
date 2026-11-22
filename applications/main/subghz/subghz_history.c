@@ -253,7 +253,13 @@ static void subghz_history_name_variant(
 
     if(!strcmp(protocol, SUBGHZ_PROTOCOL_KEELOQ_NAME)) {
         if(flipper_format_rewind(fff) && flipper_format_read_string(fff, "Manufacture", scratch)) {
-            furi_string_printf(name, "KL %s", furi_string_get_cstr(scratch));
+            uint32_t te = 0;
+            if(flipper_format_rewind(fff) && flipper_format_read_uint32(fff, "TE", &te, 1) &&
+               (te == KEELOQ_TE_FAST)) {
+                furi_string_printf(name, "KL HR %s", furi_string_get_cstr(scratch));
+            } else {
+                furi_string_printf(name, "KL %s", furi_string_get_cstr(scratch));
+            }
         }
     } else if(!strcmp(protocol, SUBGHZ_PROTOCOL_FAAC_SLH_NAME)) {
         furi_string_set_str(name, subghz_protocol_decoder_faac_slh_get_variant_name(decoder_base));

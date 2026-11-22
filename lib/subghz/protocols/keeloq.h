@@ -4,6 +4,7 @@
 #include "public_api.h"
 
 #define SUBGHZ_PROTOCOL_KEELOQ_NAME "KeeLoq"
+#define KEELOQ_TE_FAST              200u
 
 typedef struct SubGhzProtocolDecoderKeeloq SubGhzProtocolDecoderKeeloq;
 typedef struct SubGhzProtocolEncoderKeeloq SubGhzProtocolEncoderKeeloq;
