@@ -1,6 +1,6 @@
 ## Main changes
 - Current API: 88.27
-- Apps: Build tag (**24nov2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+- Apps: Build tag (**25nov2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 - SubGHz: **New protocol - BelKorn, 118 bits, rolling code with no encryption, 36 bit serial, with custom buttons** - (Korn, BelGate, Furniteh and other rebrands; the frame carries no manufacturer field, so they all read as `BelKorn`)
 - SubGHz: **Add Manually: `BelKorn`**
 - SubGHz: **The read list names the system a multi-system protocol decoded, instead of the protocol - CAME, Nice FloR-S, Faac SLH and KeeLoq**
@@ -16,6 +16,8 @@
 - Archive: **New `Phone` tab for the SIM800 phonebook - a `.phone` entry opens straight in the app**
 - BadUSB: **New `DUCKY_LANG` script command - a script picks its own keyboard layout from `badusb/assets/layouts/<name>.kl`, instead of every script running on the one layout set in the app** (the native `.kl` map is ASCII only, and a missing or invalid name falls back to the built-in en-US) (by @ANTONiO-eagle | PR #1224 | Closes #1218)
 - SubGHz: **New KeeLoq manufacturer - FAAC FIX, with `KL: FAAC FIX` in Add Manually and custom button support** (thanks @Anat01y)
+- SubGHz: **Add Manually: `Alutech AT4L`** (`Alutech AT-4N` protocol with `0x1Dxxxxxx` serial prefix)
+- SubGHz: **Alutech AT-4N CounterMode 1 & 2 now transmit full smart clone packs** - Mode 1 uses a 3-press cycle (`0x0000` x4, `0x0001` x4, then `0xFFFE` x4 + `0xFFFF` x4 in one press for MCSW-3.3M); Mode 2 sends `0x0000..0x0005` (14 frames) in a single press while preserving the file counter
 - JS: **New `usbdisk.createImage(path, size)` method to create empty disk images**
 ## Other changes
 - OFW: fix: resolve PVS-Studio warnings reported on dev

@@ -85,12 +85,14 @@ CounterMode: 1
 - Resets to 0 when overflow occurs (> 0xFFFF)
 
 **Mode 1:**
-- Counter sequence: `0x0000 / 0x0001 / 0xFFFE / 0xFFFF`
-- For receiver model MCSW-3.3M
+- 3-press cycle for receiver model MCSW-3.3M:
+  - Press 1: `0x0000` (4 frames)
+  - Press 2: `0x0001` (4 frames)
+  - Press 3: `0xFFFE` (4 frames) followed by `0xFFFF` (4 frames) in a single press (~0.85s) to resync across the wrap boundary
 
 **Mode 2:**
-- Counter sequence: `0x0000 / 0x0001 / 0x0002 / 0x0003 / 0x0004 / 0x0005`
-- For other receiver boards
+- Single-press resync pack (~1.5s) for other receiver boards: sends `0x0000` (x2), `0x0001` (x2), `0x0002` (x2), `0x0003` (x2), `0x0004` (x3), `0x0005` (x3) back to back in one press
+- The counter in your file is left unchanged, so every press sends the same pack
 
 ---
 

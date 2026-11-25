@@ -16,6 +16,7 @@ void subghz_scene_set_type_submenu_callback(void* context, uint32_t index) {
    under another row - see set_type_alt_bands in the frequency scene. */
 static const char* submenu_names[SetTypeMAX] = {
     [SetTypeAllmatic] = "KL: Allmatic",
+    [SetTypeAlutechAT4L] = "Alutech AT4L",
     [SetTypeAlutechAT4N] = "Alutech AT4N",
     [SetTypeANMotorsAT4] = "AN-Motors AT4",
     [SetTypeAprimatic] = "KL: Aprimatic",

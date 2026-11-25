@@ -71,6 +71,7 @@ typedef enum {
    modulation in a scene of its own, where every system can pick out of one shared list. */
 typedef enum {
     SetTypeAllmatic,
+    SetTypeAlutechAT4L,
     SetTypeAlutechAT4N,
     SetTypeANMotorsAT4,
     SetTypeAprimatic,
