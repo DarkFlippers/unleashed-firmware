@@ -6,11 +6,29 @@ static void sim800_ussd_task(Sim800App* app) {
     FuriString* value = furi_string_alloc();
 
     furi_string_reset(out);
+    furi_string_reset(app->task_response);
+
+    if(!sim800_uart_is_open(app->uart) || !sim800_uart_probe(app->uart)) {
+        app->task_result = Sim800AtResultNotOpen;
+        app->last_ok = false;
+        furi_string_set_str(out, sim800_at_result_text(app->task_result));
+        furi_string_free(cmd);
+        furi_string_free(value);
+        return;
+    }
+
     sim800_arm_urc(app);
 
-    furi_string_printf(cmd, "AT+CUSD=1,\"%s\"", app->text_store);
+    furi_string_printf(cmd, "AT+CUSD=1,\"%s\",15", app->text_store);
     app->task_result =
         sim800_uart_command(app->uart, furi_string_get_cstr(cmd), 10000, app->task_response);
+    if(app->task_result == Sim800AtResultError) {
+        // Fallback without explicit DCS parameter if network/firmware prefers 2-arg form
+        sim800_arm_urc(app);
+        furi_string_printf(cmd, "AT+CUSD=1,\"%s\"", app->text_store);
+        app->task_result =
+            sim800_uart_command(app->uart, furi_string_get_cstr(cmd), 10000, app->task_response);
+    }
 
     bool got = sim800_response_field(app->task_response, "+CUSD", value);
     // Most firmwares answer OK first and send the +CUSD line on its own a moment later
@@ -30,9 +48,17 @@ static void sim800_ussd_task(Sim800App* app) {
         } else {
             furi_string_set(out, value);
         }
+        if(app->sms_plugin) {
+            app->sms_plugin->decode_text(furi_string_get_cstr(out), text);
+            furi_string_set(out, text);
+        }
         furi_string_free(text);
     } else {
-        furi_string_set_str(out, sim800_at_result_text(app->task_result));
+        furi_string_set(out, app->task_response);
+        furi_string_trim(out);
+        if(furi_string_size(out) == 0) {
+            furi_string_set_str(out, sim800_at_result_text(app->task_result));
+        }
     }
 
     furi_string_free(cmd);
@@ -41,6 +67,7 @@ static void sim800_ussd_task(Sim800App* app) {
 
 void sim800_scene_ussd_result_on_enter(void* context) {
     Sim800App* app = context;
+    sim800_sms_plugin_load(app);
     sim800_show_busy(app, "USSD", app->text_store);
     sim800_task_start(app, sim800_ussd_task);
 }
@@ -50,10 +77,17 @@ bool sim800_scene_ussd_result_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom && event.event == Sim800CustomEventTaskDone) {
         sim800_notify_result(app, app->last_ok);
-        text_box_reset(app->text_box);
-        text_box_set_font(app->text_box, TextBoxFontText);
-        text_box_set_text(app->text_box, furi_string_get_cstr(app->text_box_store));
-        view_dispatcher_switch_to_view(app->view_dispatcher, Sim800ViewTextBox);
+        if(app->sms_plugin) {
+            sim800_sms_view_set_callback(app->sms_view, NULL, NULL);
+            sim800_sms_view_set_text(
+                app->sms_view, app->text_store, furi_string_get_cstr(app->text_box_store), false);
+            view_dispatcher_switch_to_view(app->view_dispatcher, Sim800ViewSms);
+        } else {
+            text_box_reset(app->text_box);
+            text_box_set_font(app->text_box, TextBoxFontText);
+            text_box_set_text(app->text_box, furi_string_get_cstr(app->text_box_store));
+            view_dispatcher_switch_to_view(app->view_dispatcher, Sim800ViewTextBox);
+        }
         return true;
     }
     return false;
@@ -65,4 +99,5 @@ void sim800_scene_ussd_result_on_exit(void* context) {
     sim800_uart_command(app->uart, "AT+CUSD=2", 2000, NULL);
     text_box_reset(app->text_box);
     popup_reset(app->popup);
+    sim800_sms_plugin_unload(app);
 }

@@ -4,9 +4,9 @@
 #include <storage/storage.h>
 #include <furi_hal_rtc.h>
 
-#define SIM800_HISTORY_BODY 160 // one SMS worth of text, longer bodies are cut
-#define SIM800_HISTORY_MAX  8192 // where trimming starts
-#define SIM800_HISTORY_KEEP 4096 // how much of the tail survives it
+#define SIM800_HISTORY_BODY 1200 // room for multi-part UTF-8 Cyrillic SMS bodies
+#define SIM800_HISTORY_MAX  16384 // where trimming starts
+#define SIM800_HISTORY_KEEP 8192 // how much of the tail survives it
 
 static const char* const sim800_history_tags[] = {
     [Sim800HistoryCall] = "CALL",
@@ -132,7 +132,15 @@ void sim800_history_add_sms(const char* from, const char* date, const char* body
 
     // Two leading spaces mark a continuation, which is what keeps the body with its header
     FuriString* text = furi_string_alloc_set_str(body);
-    furi_string_left(text, SIM800_HISTORY_BODY);
+    if(furi_string_size(text) > SIM800_HISTORY_BODY) {
+        // Trim on a UTF-8 codepoint boundary so Cyrillic never gets split mid-character
+        size_t cut = SIM800_HISTORY_BODY;
+        const char* raw = furi_string_get_cstr(text);
+        while(cut > 0 && (((unsigned char)raw[cut] & 0xC0) == 0x80)) {
+            cut--;
+        }
+        furi_string_left(text, cut);
+    }
     furi_string_replace_str(text, "\r", "");
     furi_string_replace_str(text, "\n", "\n  ");
     furi_string_cat_printf(line, "  %s\n", furi_string_get_cstr(text));

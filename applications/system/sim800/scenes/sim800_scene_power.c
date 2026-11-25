@@ -24,13 +24,26 @@ static const char* const power_commands[] = {
 };
 
 static void sim800_pwrkey_task(Sim800App* app) {
+    furi_string_reset(app->task_response);
     sim800_pwrkey_pulse(app);
     furi_delay_ms(SIM800_PWRKEY_BOOT_MS);
     app->task_result = sim800_app_connect(app, 10) ? Sim800AtResultOk : Sim800AtResultTimeout;
 }
 
 static void sim800_power_task(Sim800App* app) {
-    app->task_result = sim800_uart_command(app->uart, app->text_store, 10000, NULL);
+    furi_string_reset(app->task_response);
+    if(!sim800_uart_is_open(app->uart) || !sim800_uart_probe(app->uart)) {
+        app->task_result = Sim800AtResultTimeout;
+        return;
+    }
+
+    if(strcmp(app->text_store, "AT&W") == 0) {
+        app->task_result = sim800_uart_store_profile(app->uart, app->task_response);
+        sim800_settings_save(&app->settings);
+    } else {
+        app->inbox_loaded = false;
+        app->task_result = sim800_uart_command(app->uart, app->text_store, 10000, app->task_response);
+    }
 }
 
 static void sim800_power_show_menu(Sim800App* app) {
@@ -106,6 +119,20 @@ bool sim800_scene_power_on_event(void* context, SceneManagerEvent event) {
 
     if(event.event == Sim800CustomEventTaskDone) {
         sim800_notify_result(app, app->task_result == Sim800AtResultOk);
+        furi_string_trim(app->task_response);
+        if(app->task_result != Sim800AtResultOk && furi_string_size(app->task_response) > 0) {
+            snprintf(
+                app->popup_text,
+                sizeof(app->popup_text),
+                "%s",
+                furi_string_get_cstr(app->task_response));
+        } else {
+            snprintf(
+                app->popup_text,
+                sizeof(app->popup_text),
+                "%s",
+                sim800_at_result_text(app->task_result));
+        }
         popup_reset(app->popup);
         popup_set_header(
             app->popup,
@@ -114,8 +141,7 @@ bool sim800_scene_power_on_event(void* context, SceneManagerEvent event) {
             20,
             AlignCenter,
             AlignTop);
-        popup_set_text(
-            app->popup, sim800_at_result_text(app->task_result), 64, 38, AlignCenter, AlignTop);
+        popup_set_text(app->popup, app->popup_text, 64, 38, AlignCenter, AlignTop);
         view_dispatcher_switch_to_view(app->view_dispatcher, Sim800ViewPopup);
         return true;
     }

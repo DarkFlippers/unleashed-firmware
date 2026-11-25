@@ -22,4 +22,17 @@ App(
     "network, inbox, USSD, DTMF, audio and power commands from one place",
     fap_version="1.0",
     fap_exclude_libs=["gcc"],
+    sources=[
+        "*.c",
+        "!plugins/*.c",
+    ],
+)
+
+App(
+    appid="sim800_sms_plugin",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="sim800_sms_plugin_ep",
+    requires=["sim800"],
+    sources=["plugins/sim800_sms_plugin.c"],
+    fal_embedded=True,
 )

@@ -6,8 +6,14 @@
 static void sim800_sms_send_task(Sim800App* app) {
     FuriString* cmd = furi_string_alloc();
 
-    sim800_uart_command(app->uart, "AT+CMGF=1", 1000, NULL);
-    sim800_uart_command(app->uart, "AT+CSCS=\"GSM\"", 1000, NULL);
+    if(!sim800_uart_is_open(app->uart) || !sim800_uart_probe(app->uart)) {
+        app->task_result = Sim800AtResultNotOpen;
+        furi_string_free(cmd);
+        return;
+    }
+
+    sim800_uart_command(app->uart, "AT+CMGF=1", 2000, NULL);
+    sim800_uart_command(app->uart, "AT+CSCS=\"GSM\"", 2000, NULL);
 
     furi_string_printf(cmd, "AT+CMGS=\"%s\"", furi_string_get_cstr(app->number));
     app->task_result = sim800_uart_command_prompt(

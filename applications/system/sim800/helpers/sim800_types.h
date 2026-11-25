@@ -21,7 +21,7 @@
 // Shared text input buffer, so it holds the longest thing any scene asks for
 #define SIM800_TEXT_STORE_SIZE SIM800_SMS_TEXT_MAX
 
-#define SIM800_INBOX_MAX 24
+#define SIM800_INBOX_MAX 40
 #define SIM800_LOG_MAX   2048
 
 #define SIM800_PRESET_MAX 20

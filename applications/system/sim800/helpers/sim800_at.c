@@ -1,6 +1,6 @@
 #include "sim800_at.h"
 
-#define SIM800_AT_TIMEOUT 1000
+#define SIM800_AT_TIMEOUT 2000
 
 bool sim800_at_query(Sim800Uart* uart, const char* cmd, const char* prefix, FuriString* out) {
     FuriString* response = furi_string_alloc();

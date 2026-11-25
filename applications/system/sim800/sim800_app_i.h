@@ -15,6 +15,7 @@
 #include <notification/notification_messages.h>
 #include <power/power_service/power.h>
 #include <storage/storage.h>
+#include <flipper_application/flipper_application.h>
 
 #include "sim800_icons.h"
 
@@ -26,6 +27,7 @@
 #include "helpers/sim800_phonebook.h"
 #include "helpers/sim800_history.h"
 #include "helpers/sim800_sms.h"
+#include "plugins/sim800_sms_plugin.h"
 #include "views/sim800_text_input.h"
 #include "views/sim800_connect_view.h"
 #include "views/sim800_dtmf_view.h"
@@ -33,6 +35,7 @@
 #include "views/sim800_status_view.h"
 #include "views/sim800_entry_view.h"
 #include "views/sim800_howto_view.h"
+#include "views/sim800_sms_view.h"
 #include "scenes/sim800_scene.h"
 
 #define SIM800_TAG "Sim800"
@@ -50,6 +53,7 @@ typedef enum {
     Sim800ViewHowto,
     Sim800ViewConnect,
     Sim800ViewDtmf,
+    Sim800ViewSms,
 } Sim800ViewId;
 
 typedef enum {
@@ -93,10 +97,18 @@ struct Sim800App {
     Sim800HowtoView* howto_view;
     Sim800ConnectView* connect_view;
     Sim800DtmfView* dtmf_view;
+    Sim800SmsView* sms_view;
+
+    FlipperApplication* sms_plugin_app;
+    const Sim800SmsPlugin* sms_plugin;
+    bool sms_plugin_keep;
 
     Sim800Settings settings;
     Sim800Uart* uart;
     Sim800Inbox inbox;
+    Sim800SmsEntry sms_full;
+    bool inbox_loaded;
+    volatile bool inbox_cancel;
 
     FuriString* number;
     FuriString* sms_text;
@@ -116,6 +128,7 @@ struct Sim800App {
     // RING repeats for as long as the caller waits, so one call must not log many times
     char history_last[SIM800_NUMBER_MAX];
     uint32_t history_tick;
+    uint32_t sms_notify_tick; //!< coalesce multipart +CMTI bursts into one alert/log entry
     // The module shouts UNDER-VOLTAGE before it drops the network, which is the one piece of
     // evidence that separates a weak supply from a weak signal
     char power_alarm[24];
@@ -133,7 +146,7 @@ struct Sim800App {
     bool preset_is_new;
     uint32_t pending_baud; // rate the Set module baud screen is moving to
     // popup_set_text keeps the pointer it is handed, so popup strings cannot live on a stack
-    char popup_text[40];
+    char popup_text[64];
     bool last_ok; // outcome of the last background task, for the notification
     bool otg_was_on; // 5V was already requested when we started, so it is not ours to drop
     bool redial; // a call to the current number ended, so offer Re-dial
@@ -167,6 +180,13 @@ struct Sim800App {
  */
 bool sim800_app_connect(Sim800App* app, size_t attempts);
 
+/** Push the saved audio levels/channel to the module (SIM800 resets them on power cycle). */
+void sim800_app_apply_audio(Sim800App* app);
+
+/** Load/unload the embedded SMS Cyrillic + UCS2 plugin (.fal) on demand to save RAM. */
+bool sim800_sms_plugin_load(Sim800App* app);
+void sim800_sms_plugin_unload(Sim800App* app);
+
 /** Ask where the message body comes from, or go straight to the keyboard if nothing is saved. */
 void sim800_sms_compose(Sim800App* app);
 
@@ -182,6 +202,7 @@ void sim800_task_start(Sim800App* app, Sim800TaskFn fn);
 void sim800_task_join(Sim800App* app);
 bool sim800_task_is_busy(Sim800App* app);
 
+void sim800_log_append(Sim800App* app, const char* line);
 void sim800_log_read(Sim800App* app, FuriString* out);
 void sim800_log_clear(Sim800App* app);
 
@@ -194,8 +215,14 @@ void sim800_show_busy(Sim800App* app, const char* header, const char* text);
 /** The app's only feedback: green on a finished action, red on one that failed. */
 void sim800_notify_result(Sim800App* app, bool ok);
 
+/** Play SMS alert and show the New SMS prompt (with jump-to-Inbox button). */
+void sim800_app_notify_sms(Sim800App* app);
+
 /** Opening bar of Gran Vals, and a single backlight nudge. No vibro, no blinking. */
 extern const NotificationSequence sim800_sequence_ring;
+
+/** Short two-note chime + brief vibro for an incoming SMS (+CMTI). */
+extern const NotificationSequence sim800_sequence_sms;
 
 typedef enum {
     Sim800PwrkeyReady,

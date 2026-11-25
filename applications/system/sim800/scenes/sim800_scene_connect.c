@@ -4,7 +4,8 @@
 // baud, and a module that is still off adds a PWRKEY pulse plus its boot. Do it behind a screen
 // instead of a frozen menu.
 static void sim800_connect_task(Sim800App* app) {
-    app->last_ok = sim800_app_connect(app, 3);
+    // 6 attempts at 500 ms each gives a cold-booting auto-start module ~3 s to come up
+    app->last_ok = sim800_app_connect(app, 6);
 
     if(!app->last_ok && (sim800_pwrkey_state(app) == Sim800PwrkeyReady)) {
         sim800_pwrkey_pulse(app);
@@ -25,7 +26,7 @@ void sim800_scene_connect_on_enter(void* context) {
     Sim800App* app = context;
 
     // A module that has to be started costs a PWRKEY pulse plus its boot on top of the connect
-    uint32_t total_ms = (sim800_pwrkey_state(app) == Sim800PwrkeyReady) ? 9000 : 3000;
+    uint32_t total_ms = (sim800_pwrkey_state(app) == Sim800PwrkeyReady) ? 10000 : 4000;
 
     sim800_connect_view_start(app->connect_view, app->settings.baudrate, total_ms);
     view_dispatcher_switch_to_view(app->view_dispatcher, Sim800ViewConnect);

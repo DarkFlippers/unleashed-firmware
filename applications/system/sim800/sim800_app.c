@@ -3,6 +3,7 @@
 #include <expansion/expansion.h>
 #include <furi_hal_power.h>
 #include <furi_hal_resources.h>
+#include <loader/firmware_api/firmware_api.h>
 
 static bool sim800_app_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);
@@ -22,13 +23,22 @@ static bool sim800_app_custom_event_callback(void* context, uint32_t event) {
                 (app->incoming_number[0] != '\0') ? app->incoming_number : "unknown");
         }
     } else if(event == Sim800CustomEventNewSms) {
-        char detail[32];
-        snprintf(
-            detail,
-            sizeof(detail),
-            "index %s",
-            (app->incoming_sms[0] != '\0') ? app->incoming_sms : "?");
-        sim800_history_add(Sim800HistorySms, detail);
+        uint32_t now = furi_get_tick();
+        bool burst = (app->sms_notify_tick != 0) &&
+                     ((now - app->sms_notify_tick) < furi_ms_to_ticks(10000));
+        app->sms_notify_tick = now;
+        app->inbox_loaded = false;
+
+        if(!burst) {
+            char detail[32];
+            snprintf(
+                detail,
+                sizeof(detail),
+                "index %s",
+                (app->incoming_sms[0] != '\0') ? app->incoming_sms : "?");
+            sim800_history_add(Sim800HistorySms, detail);
+            sim800_app_notify_sms(app);
+        }
     }
 
     // A ring can land in any scene, so the call screen is pushed here rather than in each one
@@ -74,7 +84,7 @@ static void sim800_app_log_line(Sim800App* app, const char* line) {
 
     furi_string_cat_str(app->log, line);
     furi_string_cat_str(app->log, "\n");
-    if(furi_string_size(app->log) > SIM800_LOG_MAX) {
+    if(furi_string_size(app->log) > SIM800_LOG_MAX + 512) {
         size_t drop = furi_string_size(app->log) - SIM800_LOG_MAX;
         size_t newline = furi_string_search_char(app->log, '\n', drop);
         furi_string_right(app->log, (newline == FURI_STRING_FAILURE) ? drop : newline + 1);
@@ -123,6 +133,10 @@ static void sim800_app_line_callback(const char* line, void* context) {
     }
 }
 
+void sim800_log_append(Sim800App* app, const char* line) {
+    sim800_app_log_line(app, line);
+}
+
 void sim800_log_read(Sim800App* app, FuriString* out) {
     furi_mutex_acquire(app->log_mutex, FuriWaitForever);
     furi_string_set(out, app->log);
@@ -147,6 +161,75 @@ bool sim800_wait_urc(Sim800App* app, uint32_t timeout_ms, FuriString* out) {
     return true;
 }
 
+void sim800_app_apply_audio(Sim800App* app) {
+    if(!sim800_uart_is_open(app->uart)) return;
+
+    char cmd[24];
+    snprintf(cmd, sizeof(cmd), "AT+CHFA=%lu", (unsigned long)app->settings.audio_channel);
+    sim800_uart_command(app->uart, cmd, 1500, NULL);
+    snprintf(cmd, sizeof(cmd), "AT+CLVL=%lu", (unsigned long)app->settings.audio_volume);
+    sim800_uart_command(app->uart, cmd, 1500, NULL);
+    snprintf(cmd, sizeof(cmd), "AT+CRSL=%lu", (unsigned long)app->settings.audio_ringer);
+    sim800_uart_command(app->uart, cmd, 1500, NULL);
+    snprintf(
+        cmd,
+        sizeof(cmd),
+        "AT+CMIC=%lu,%lu",
+        (unsigned long)app->settings.audio_channel,
+        (unsigned long)app->settings.audio_mic);
+    sim800_uart_command(app->uart, cmd, 1500, NULL);
+}
+
+bool sim800_sms_plugin_load(Sim800App* app) {
+    if(app->sms_plugin != NULL) return true;
+
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    FlipperApplication* plugin_app = flipper_application_alloc(storage, firmware_api_interface);
+    bool ok = false;
+
+    do {
+        if(flipper_application_preload(plugin_app, SIM800_SMS_PLUGIN_PATH) !=
+           FlipperApplicationPreloadStatusSuccess) {
+            FURI_LOG_E(SIM800_TAG, "Failed to preload SMS plugin");
+            break;
+        }
+        if(!flipper_application_is_plugin(plugin_app)) {
+            FURI_LOG_E(SIM800_TAG, "SMS plugin file is not a plugin");
+            break;
+        }
+        if(flipper_application_map_to_memory(plugin_app) != FlipperApplicationLoadStatusSuccess) {
+            FURI_LOG_E(SIM800_TAG, "Failed to map SMS plugin");
+            break;
+        }
+        const FlipperAppPluginDescriptor* desc =
+            flipper_application_plugin_get_descriptor(plugin_app);
+        if(!desc || desc->ep_api_version != SIM800_SMS_PLUGIN_API_VERSION ||
+           strcmp(desc->appid, SIM800_SMS_PLUGIN_APP_ID) != 0) {
+            FURI_LOG_E(SIM800_TAG, "SMS plugin descriptor mismatch");
+            break;
+        }
+        app->sms_plugin_app = plugin_app;
+        app->sms_plugin = desc->entry_point;
+        sim800_sms_view_set_plugin(app->sms_view, app->sms_plugin);
+        ok = true;
+    } while(false);
+
+    if(!ok) {
+        flipper_application_free(plugin_app);
+    }
+    furi_record_close(RECORD_STORAGE);
+    return ok;
+}
+
+void sim800_sms_plugin_unload(Sim800App* app) {
+    sim800_sms_view_set_plugin(app->sms_view, NULL);
+    app->sms_plugin = NULL;
+    if(app->sms_plugin_app != NULL) {
+        flipper_application_free(app->sms_plugin_app);
+        app->sms_plugin_app = NULL;
+    }
+}
+
 bool sim800_app_connect(Sim800App* app, size_t attempts) {
     sim800_uart_close(app->uart);
 
@@ -157,12 +240,19 @@ bool sim800_app_connect(Sim800App* app, size_t attempts) {
 
     if(!sim800_uart_sync(app->uart, attempts)) return false;
 
-    sim800_uart_command(app->uart, app->settings.echo ? "ATE1" : "ATE0", 300, NULL);
-    sim800_uart_command(app->uart, "AT+CMEE=2", 300, NULL);
-    sim800_uart_command(app->uart, "AT+CLIP=1", 300, NULL);
-    sim800_uart_command(app->uart, "AT+CMGF=1", 300, NULL);
-    sim800_uart_command(app->uart, "AT+CSCS=\"GSM\"", 300, NULL);
-    sim800_uart_command(app->uart, "AT+CNMI=2,1,0,0,0", 300, NULL);
+    // Generous timeouts: at 2400 baud right after boot, 300 ms can cut off a reply and desync
+    sim800_uart_command(app->uart, app->settings.echo ? "ATE1" : "ATE0", 1500, NULL);
+    // Keep the module awake while connected: auto-sleep (CSCLK=2) swallows the first command after idle
+    sim800_uart_command(app->uart, "AT+CSCLK=0", 1500, NULL);
+    sim800_uart_command(app->uart, "AT+CMEE=2", 1500, NULL);
+    sim800_uart_command(app->uart, "AT+CLIP=1", 1500, NULL);
+    sim800_uart_command(app->uart, "AT+CMGF=1", 1500, NULL);
+    sim800_uart_command(app->uart, "AT+CSCS=\"GSM\"", 1500, NULL);
+    sim800_uart_command(app->uart, "AT+CNMI=2,1,0,0,0", 1500, NULL);
+
+    if(app->settings.audio_saved) {
+        sim800_app_apply_audio(app);
+    }
 
     return true;
 }
@@ -301,9 +391,63 @@ const NotificationSequence sim800_sequence_ring = {
     NULL,
 };
 
+const NotificationSequence sim800_sequence_sms = {
+    &message_display_backlight_on,
+    &message_blue_255,
+    &message_green_255,
+    &message_vibro_on,
+    &message_note_b5,
+    &message_delay_100,
+    &message_sound_off,
+    &message_vibro_off,
+    &message_blue_0,
+    &message_green_0,
+    &message_delay_50,
+    &message_blue_255,
+    &message_green_255,
+    &message_note_e6,
+    &message_delay_100,
+    &message_sound_off,
+    &message_delay_100,
+    &message_blue_0,
+    &message_green_0,
+    NULL,
+};
+
 void sim800_notify_result(Sim800App* app, bool ok) {
     if(!app->settings.notify) return;
     notification_message(app->notifications, ok ? &sequence_success : &sequence_error);
+}
+
+void sim800_app_notify_sms(Sim800App* app) {
+    if(app->settings.notify) {
+        notification_message(app->notifications, &sim800_sequence_sms);
+    }
+
+    uint32_t current = scene_manager_get_current_scene(app->scene_manager);
+    if(current == Sim800SceneCall || current == Sim800SceneCallDtmf ||
+       current == Sim800SceneInbox || current == Sim800SceneSmsRead) {
+        return;
+    }
+
+    char body[40];
+    if(app->incoming_sms[0] != '\0') {
+        snprintf(body, sizeof(body), "New message (slot %s)", app->incoming_sms);
+    } else {
+        snprintf(body, sizeof(body), "New message received");
+    }
+
+    DialogMessage* msg = dialog_message_alloc();
+    dialog_message_set_header(msg, "New SMS", 64, 4, AlignCenter, AlignTop);
+    dialog_message_set_text(msg, body, 64, 28, AlignCenter, AlignCenter);
+    dialog_message_set_buttons(msg, "Close", NULL, "Inbox");
+
+    DialogMessageButton answer = dialog_message_show(app->dialogs, msg);
+    dialog_message_free(msg);
+
+    if(answer == DialogMessageButtonRight) {
+        scene_manager_next_scene(app->scene_manager, Sim800SceneInbox);
+    }
 }
 
 const char* sim800_at_result_text(Sim800AtResult result) {
@@ -401,6 +545,10 @@ static Sim800App* sim800_app_alloc(void) {
     app->howto_view = sim800_howto_view_alloc();
     app->connect_view = sim800_connect_view_alloc();
     app->dtmf_view = sim800_dtmf_view_alloc();
+    app->sms_view = sim800_sms_view_alloc();
+    app->sms_plugin_app = NULL;
+    app->sms_plugin = NULL;
+    app->sms_plugin_keep = false;
     app->net_operator = furi_string_alloc();
     app->net_rssi = 99;
     view_dispatcher_add_view(
@@ -409,6 +557,8 @@ static Sim800App* sim800_app_alloc(void) {
         app->view_dispatcher, Sim800ViewConnect, sim800_connect_view_get_view(app->connect_view));
     view_dispatcher_add_view(
         app->view_dispatcher, Sim800ViewDtmf, sim800_dtmf_view_get_view(app->dtmf_view));
+    view_dispatcher_add_view(
+        app->view_dispatcher, Sim800ViewSms, sim800_sms_view_get_view(app->sms_view));
 
     app->number = furi_string_alloc();
     app->sms_text = furi_string_alloc();
@@ -427,9 +577,19 @@ static Sim800App* sim800_app_alloc(void) {
     app->preset_count = 0;
 
     sim800_inbox_init(&app->inbox);
+    app->sms_full.index = 0;
+    app->sms_full.status = furi_string_alloc();
+    app->sms_full.from = furi_string_alloc();
+    app->sms_full.date = furi_string_alloc();
+    app->sms_full.body = furi_string_alloc();
+    app->inbox_loaded = false;
+    app->inbox_cancel = false;
 
     app->text_store[0] = '\0';
     app->incoming_number[0] = '\0';
+    app->history_last[0] = '\0';
+    app->history_tick = 0;
+    app->sms_notify_tick = 0;
     app->task_thread = NULL;
     app->task_fn = NULL;
     app->task_busy = false;
@@ -444,12 +604,11 @@ static Sim800App* sim800_app_alloc(void) {
     app->call_keep = false;
     app->call_start_tick = 0;
     app->selected_sms = 0;
-    app->audio_volume = 50;
-    app->audio_ringer = 50;
-    app->audio_mic = 8;
-    app->audio_channel = 0;
-
     sim800_settings_load(&app->settings);
+    app->audio_volume = (uint8_t)app->settings.audio_volume;
+    app->audio_ringer = (uint8_t)app->settings.audio_ringer;
+    app->audio_mic = (uint8_t)app->settings.audio_mic;
+    app->audio_channel = (uint8_t)app->settings.audio_channel;
 
     app->uart = sim800_uart_alloc();
     sim800_uart_set_line_callback(app->uart, sim800_app_line_callback, app);
@@ -464,6 +623,8 @@ static void sim800_app_free(Sim800App* app) {
     sim800_uart_set_line_callback(app->uart, NULL, NULL);
     sim800_uart_free(app->uart);
 
+    sim800_sms_plugin_unload(app);
+
     view_dispatcher_remove_view(app->view_dispatcher, Sim800ViewSubmenu);
     view_dispatcher_remove_view(app->view_dispatcher, Sim800ViewTextInput);
     view_dispatcher_remove_view(app->view_dispatcher, Sim800ViewTextBox);
@@ -476,6 +637,7 @@ static void sim800_app_free(Sim800App* app) {
     view_dispatcher_remove_view(app->view_dispatcher, Sim800ViewHowto);
     view_dispatcher_remove_view(app->view_dispatcher, Sim800ViewConnect);
     view_dispatcher_remove_view(app->view_dispatcher, Sim800ViewDtmf);
+    view_dispatcher_remove_view(app->view_dispatcher, Sim800ViewSms);
 
     submenu_free(app->submenu);
     sim800_text_input_free(app->text_input);
@@ -489,12 +651,17 @@ static void sim800_app_free(Sim800App* app) {
     sim800_howto_view_free(app->howto_view);
     sim800_connect_view_free(app->connect_view);
     sim800_dtmf_view_free(app->dtmf_view);
+    sim800_sms_view_free(app->sms_view);
     furi_string_free(app->net_operator);
 
     view_dispatcher_free(app->view_dispatcher);
     scene_manager_free(app->scene_manager);
 
     sim800_inbox_free(&app->inbox);
+    furi_string_free(app->sms_full.status);
+    furi_string_free(app->sms_full.from);
+    furi_string_free(app->sms_full.date);
+    furi_string_free(app->sms_full.body);
     for(size_t i = 0; i < SIM800_PRESET_MAX; i++) {
         furi_string_free(app->preset_names[i]);
     }

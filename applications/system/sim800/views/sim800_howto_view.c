@@ -3,7 +3,7 @@
 #include <gui/elements.h>
 #include <furi.h>
 
-#define SIM800_HOWTO_PAGES 5
+#define SIM800_HOWTO_PAGES 6
 
 struct Sim800HowtoView {
     View* view;
@@ -21,6 +21,7 @@ static const char* const sim800_howto_titles[SIM800_HOWTO_PAGES] = {
     "TX divider",
     "What it does",
     "Power & baud",
+    "Signal",
 };
 
 static const char* const sim800_howto_text[SIM800_HOWTO_PAGES] = {
@@ -39,6 +40,11 @@ static const char* const sim800_howto_text[SIM800_HOWTO_PAGES] = {
     "Set the same baud rate in Settings that the module runs at. 115200 is the "
     "factory default, but boards ship re-set as low as 2400 and keep whatever "
     "AT+IPR last gave them. If nothing answers, run Advanced > Detect baud.",
+    "dBm and CSQ RSSI (0-31):\n"
+    "0-9: <-95 dBm (weak)\n"
+    "10-14: -93..-85 (OK)\n"
+    "15-19: -83..-75 (good)\n"
+    "20-31: -73..-51 (great)",
 };
 
 /** Wire with an arrowhead on the end the signal travels to. */

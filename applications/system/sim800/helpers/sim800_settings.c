@@ -10,11 +10,16 @@
 #define SIM800_SETTINGS_FILE_TYPE    "Flipper SIM800 Settings File"
 #define SIM800_SETTINGS_FILE_VERSION 1
 
-#define SIM800_SETTINGS_FIELD_PORT   "UartPort"
-#define SIM800_SETTINGS_FIELD_BAUD   "Baudrate"
-#define SIM800_SETTINGS_FIELD_NOTIFY "Notify"
-#define SIM800_SETTINGS_FIELD_ECHO   "Echo"
-#define SIM800_SETTINGS_FIELD_PWRKEY "PwrkeyPin"
+#define SIM800_SETTINGS_FIELD_PORT          "UartPort"
+#define SIM800_SETTINGS_FIELD_BAUD          "Baudrate"
+#define SIM800_SETTINGS_FIELD_NOTIFY        "Notify"
+#define SIM800_SETTINGS_FIELD_ECHO          "Echo"
+#define SIM800_SETTINGS_FIELD_PWRKEY        "PwrkeyPin"
+#define SIM800_SETTINGS_FIELD_AUDIO_SAVED   "AudioSaved"
+#define SIM800_SETTINGS_FIELD_AUDIO_VOLUME  "AudioVolume"
+#define SIM800_SETTINGS_FIELD_AUDIO_RINGER  "AudioRinger"
+#define SIM800_SETTINGS_FIELD_AUDIO_MIC     "AudioMic"
+#define SIM800_SETTINGS_FIELD_AUDIO_CHANNEL "AudioChannel"
 
 const uint32_t sim800_settings_baudrates[SIM800_BAUDRATE_COUNT] =
     {1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400};
@@ -53,6 +58,11 @@ void sim800_settings_load(Sim800Settings* instance) {
     instance->notify = true;
     instance->echo = false;
     instance->pwrkey_pin = 0;
+    instance->audio_saved = false;
+    instance->audio_volume = 50;
+    instance->audio_ringer = 50;
+    instance->audio_mic = 8;
+    instance->audio_channel = 0;
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* file = flipper_format_file_alloc(storage);
@@ -80,6 +90,25 @@ void sim800_settings_load(Sim800Settings* instance) {
             flipper_format_read_uint32(
                 file, SIM800_SETTINGS_FIELD_PWRKEY, &instance->pwrkey_pin, 1);
             if(instance->pwrkey_pin >= SIM800_PWRKEY_COUNT) instance->pwrkey_pin = 0;
+            flipper_format_rewind(file);
+            flipper_format_read_bool(
+                file, SIM800_SETTINGS_FIELD_AUDIO_SAVED, &instance->audio_saved, 1);
+            flipper_format_rewind(file);
+            flipper_format_read_uint32(
+                file, SIM800_SETTINGS_FIELD_AUDIO_VOLUME, &instance->audio_volume, 1);
+            if(instance->audio_volume > 100) instance->audio_volume = 100;
+            flipper_format_rewind(file);
+            flipper_format_read_uint32(
+                file, SIM800_SETTINGS_FIELD_AUDIO_RINGER, &instance->audio_ringer, 1);
+            if(instance->audio_ringer > 100) instance->audio_ringer = 100;
+            flipper_format_rewind(file);
+            flipper_format_read_uint32(
+                file, SIM800_SETTINGS_FIELD_AUDIO_MIC, &instance->audio_mic, 1);
+            if(instance->audio_mic > 15) instance->audio_mic = 15;
+            flipper_format_rewind(file);
+            flipper_format_read_uint32(
+                file, SIM800_SETTINGS_FIELD_AUDIO_CHANNEL, &instance->audio_channel, 1);
+            if(instance->audio_channel > 1) instance->audio_channel = 0;
         } while(false);
     }
 
@@ -123,6 +152,21 @@ bool sim800_settings_save(const Sim800Settings* instance) {
         if(!flipper_format_write_bool(file, SIM800_SETTINGS_FIELD_ECHO, &instance->echo, 1)) break;
         if(!flipper_format_write_uint32(
                file, SIM800_SETTINGS_FIELD_PWRKEY, &instance->pwrkey_pin, 1))
+            break;
+        if(!flipper_format_write_bool(
+               file, SIM800_SETTINGS_FIELD_AUDIO_SAVED, &instance->audio_saved, 1))
+            break;
+        if(!flipper_format_write_uint32(
+               file, SIM800_SETTINGS_FIELD_AUDIO_VOLUME, &instance->audio_volume, 1))
+            break;
+        if(!flipper_format_write_uint32(
+               file, SIM800_SETTINGS_FIELD_AUDIO_RINGER, &instance->audio_ringer, 1))
+            break;
+        if(!flipper_format_write_uint32(
+               file, SIM800_SETTINGS_FIELD_AUDIO_MIC, &instance->audio_mic, 1))
+            break;
+        if(!flipper_format_write_uint32(
+               file, SIM800_SETTINGS_FIELD_AUDIO_CHANNEL, &instance->audio_channel, 1))
             break;
         saved = true;
     } while(false);

@@ -23,6 +23,11 @@ typedef struct {
     uint32_t pwrkey_pin; //!< index into ::sim800_settings_pwrkey_names, 0 = not wired
     bool notify; //!< feedback on an incoming call, a sent SMS or a save
     bool echo; //!< leave the module's command echo on, for the terminal
+    bool audio_saved; //!< user set audio levels; re-apply them after reconnect/power cycle
+    uint32_t audio_volume; //!< AT+CLVL, 0..100
+    uint32_t audio_ringer; //!< AT+CRSL, 0..100
+    uint32_t audio_mic; //!< AT+CMIC gain, 0..15
+    uint32_t audio_channel; //!< AT+CHFA, 0..1
 } Sim800Settings;
 
 extern const uint32_t sim800_settings_baudrates[SIM800_BAUDRATE_COUNT];

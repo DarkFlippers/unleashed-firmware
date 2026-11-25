@@ -72,7 +72,37 @@ static void sim800_terminal_show_full(Sim800App* app) {
 }
 
 static void sim800_terminal_task(Sim800App* app) {
-    sim800_uart_command(app->uart, app->text_store, 5000, NULL);
+    // Uppercase outside quotes so users don't have to long-press OK for every AT letter
+    bool in_quotes = false;
+    for(char* p = app->text_store; *p != '\0'; p++) {
+        if(*p == '"') {
+            in_quotes = !in_quotes;
+        } else if(!in_quotes && *p >= 'a' && *p <= 'z') {
+            *p = (char)(*p - ('a' - 'A'));
+        }
+    }
+
+    FuriString* tx = furi_string_alloc_printf("> %s", app->text_store);
+    sim800_log_append(app, furi_string_get_cstr(tx));
+    furi_string_free(tx);
+
+    if(!sim800_uart_is_open(app->uart)) {
+        sim800_log_append(app, "[UART not open]");
+        return;
+    }
+
+    // Wake an idling/sleeping module first; otherwise the first command gets swallowed
+    Sim800AtResult result;
+    if(strcmp(app->text_store, "AT") == 0) {
+        result = sim800_uart_sync(app->uart, 3) ? Sim800AtResultOk : Sim800AtResultTimeout;
+    } else {
+        sim800_uart_probe(app->uart);
+        result = sim800_uart_command(app->uart, app->text_store, 5000, NULL);
+    }
+
+    if(result == Sim800AtResultTimeout) {
+        sim800_log_append(app, "[timeout]");
+    }
 }
 
 void sim800_scene_terminal_on_enter(void* context) {
@@ -121,6 +151,11 @@ bool sim800_scene_terminal_on_event(void* context, SceneManagerEvent event) {
     if(event.event == Sim800CustomEventTextInputDone) {
         sim800_task_start(app, sim800_terminal_task);
         sim800_terminal_show_log(app);
+        return true;
+    }
+
+    if(event.event == Sim800CustomEventTaskDone) {
+        if(state == SCENE_STATE_LOG) sim800_terminal_show_log(app);
         return true;
     }
 

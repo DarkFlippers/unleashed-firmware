@@ -4,8 +4,9 @@
 
 #define TAG "Sim800Uart"
 
-#define SIM800_RX_STREAM_SIZE 1024
-#define SIM800_LINE_MAX       512
+#define SIM800_RX_STREAM_SIZE 4096
+#define SIM800_LINE_MAX       1536
+#define SIM800_RESPONSE_MAX   4096
 #define SIM800_PROMPT_TIMEOUT 5000
 #define SIM800_CTRL_Z         0x1A
 #define SIM800_ESC            0x1B
@@ -31,6 +32,7 @@ struct Sim800Uart {
     bool cmd_call_progress; //!< this command may end on NO CARRIER and friends
     Sim800AtResult cmd_result;
     FuriString* cmd_response;
+    volatile uint32_t last_rx_tick;
 
     Sim800UartLineCallback line_callback;
     void* line_context;
@@ -69,10 +71,17 @@ static void sim800_uart_process_line(Sim800Uart* uart, const char* line) {
     furi_mutex_acquire(uart->mutex, FuriWaitForever);
     if(uart->cmd_pending) {
         if(sim800_is_final(line, uart->cmd_call_progress, &result)) {
+            if(result == Sim800AtResultError &&
+               (strncmp(line, "+CME ERROR", 10) == 0 || strncmp(line, "+CMS ERROR", 10) == 0)) {
+                if(furi_string_size(uart->cmd_response) > 0) {
+                    furi_string_cat_str(uart->cmd_response, "\n");
+                }
+                furi_string_cat_str(uart->cmd_response, line);
+            }
             uart->cmd_result = result;
             uart->cmd_pending = false;
             furi_semaphore_release(uart->cmd_sem);
-        } else if(furi_string_size(uart->cmd_response) < SIM800_LINE_MAX * 8) {
+        } else if(furi_string_size(uart->cmd_response) < SIM800_RESPONSE_MAX) {
             if(furi_string_size(uart->cmd_response) > 0) {
                 furi_string_cat_str(uart->cmd_response, "\n");
             }
@@ -87,6 +96,8 @@ static void sim800_uart_process_line(Sim800Uart* uart, const char* line) {
 }
 
 static void sim800_uart_rx_byte(Sim800Uart* uart, uint8_t data) {
+    uart->last_rx_tick = furi_get_tick();
+
     if(data == '\n') {
         if(furi_string_size(uart->line) > 0) {
             sim800_uart_process_line(uart, furi_string_get_cstr(uart->line));
@@ -161,11 +172,13 @@ Sim800Uart* sim800_uart_alloc(void) {
     uart->cmd_call_progress = false;
     uart->cmd_result = Sim800AtResultTimeout;
     uart->cmd_response = furi_string_alloc();
+    uart->last_rx_tick = 0;
     uart->line = furi_string_alloc();
     uart->line_callback = NULL;
     uart->line_context = NULL;
 
-    uart->thread = furi_thread_alloc_ex("Sim800UartWorker", 1024, sim800_uart_worker, uart);
+    uart->thread = furi_thread_alloc_ex("Sim800UartWorker", 2048, sim800_uart_worker, uart);
+    furi_thread_set_priority(uart->thread, FuriThreadPriorityHigh);
     furi_thread_start(uart->thread);
 
     return uart;
@@ -258,12 +271,36 @@ static void sim800_uart_arm(Sim800Uart* uart, bool prompt, bool call_progress) {
     uart->cmd_pending = true;
     uart->want_prompt = prompt;
     uart->cmd_call_progress = call_progress;
+    uart->last_rx_tick = furi_get_tick();
     furi_mutex_release(uart->mutex);
 }
 
-static Sim800AtResult
-    sim800_uart_collect(Sim800Uart* uart, uint32_t timeout_ms, FuriString* response) {
-    FuriStatus status = furi_semaphore_acquire(uart->cmd_sem, timeout_ms);
+static Sim800AtResult sim800_uart_collect_long(
+    Sim800Uart* uart,
+    uint32_t idle_ms,
+    uint32_t max_ms,
+    FuriString* response) {
+    uint32_t start = furi_get_tick();
+    uint32_t idle_ticks = furi_ms_to_ticks(idle_ms);
+    uint32_t max_ticks = furi_ms_to_ticks(max_ms);
+    FuriStatus status = FuriStatusErrorTimeout;
+
+    while(true) {
+        uint32_t last_rx = uart->last_rx_tick;
+        uint32_t now = furi_get_tick();
+        uint32_t since_start = now - start;
+        uint32_t since_rx = ((int32_t)(now - last_rx) > 0) ? (now - last_rx) : 0;
+
+        if(since_start >= max_ticks || since_rx >= idle_ticks) break;
+
+        uint32_t rem_max = max_ticks - since_start;
+        uint32_t rem_idle = idle_ticks - since_rx;
+        uint32_t wait_ticks = (rem_idle < rem_max) ? rem_idle : rem_max;
+        if(wait_ticks == 0) wait_ticks = 1;
+
+        status = furi_semaphore_acquire(uart->cmd_sem, wait_ticks);
+        if(status == FuriStatusOk) break;
+    }
 
     furi_mutex_acquire(uart->mutex, FuriWaitForever);
     uart->cmd_pending = false;
@@ -274,6 +311,11 @@ static Sim800AtResult
     furi_mutex_release(uart->mutex);
 
     return result;
+}
+
+static Sim800AtResult
+    sim800_uart_collect(Sim800Uart* uart, uint32_t timeout_ms, FuriString* response) {
+    return sim800_uart_collect_long(uart, timeout_ms, timeout_ms, response);
 }
 
 Sim800AtResult sim800_uart_command(
@@ -289,6 +331,31 @@ Sim800AtResult sim800_uart_command(
     sim800_uart_tx_str(uart, "\r");
 
     return sim800_uart_collect(uart, timeout_ms, response);
+}
+
+Sim800AtResult sim800_uart_command_long(
+    Sim800Uart* uart,
+    const char* cmd,
+    uint32_t idle_ms,
+    uint32_t max_ms,
+    FuriString* response) {
+    furi_assert(uart);
+    if(!uart->open) return Sim800AtResultNotOpen;
+
+    sim800_uart_arm(uart, false, false);
+    sim800_uart_tx_str(uart, cmd);
+    sim800_uart_tx_str(uart, "\r");
+
+    return sim800_uart_collect_long(uart, idle_ms, max_ms, response);
+}
+
+Sim800AtResult sim800_uart_store_profile(Sim800Uart* uart, FuriString* response) {
+    // Some SIM800 firmwares require the explicit profile index 0 and reject bare AT&W
+    Sim800AtResult result = sim800_uart_command(uart, "AT&W0", 3000, response);
+    if(result == Sim800AtResultError) {
+        result = sim800_uart_command(uart, "AT&W", 3000, response);
+    }
+    return result;
 }
 
 Sim800AtResult sim800_uart_command_call(
@@ -337,7 +404,7 @@ bool sim800_uart_sync(Sim800Uart* uart, size_t attempts) {
     // A module left on autobaud only locks onto the rate after it has seen a few "AT"s, and one
     // that was idling eats the first byte regardless. Either way a single try proves nothing.
     for(size_t i = 0; i < attempts; i++) {
-        if(sim800_uart_command(uart, "AT", 300, NULL) == Sim800AtResultOk) return true;
+        if(sim800_uart_command(uart, "AT", 500, NULL) == Sim800AtResultOk) return true;
         furi_delay_ms(50);
     }
     return false;

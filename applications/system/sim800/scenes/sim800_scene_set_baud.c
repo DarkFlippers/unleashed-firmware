@@ -14,13 +14,33 @@ static void sim800_set_baud_task(Sim800App* app) {
     char cmd[24];
 
     app->last_ok = false;
+    furi_string_reset(app->task_response);
+    if(!sim800_uart_is_open(app->uart) || !sim800_uart_probe(app->uart)) {
+        snprintf(app->popup_text, sizeof(app->popup_text), "No answer from module");
+        app->task_result = Sim800AtResultTimeout;
+        return;
+    }
+
     snprintf(cmd, sizeof(cmd), "AT+IPR=%lu", app->pending_baud);
 
-    // Plenty of boards are strapped to one rate and turn AT+IPR down flat
-    Sim800AtResult result = sim800_uart_command(app->uart, cmd, 3000, NULL);
-    if(result != Sim800AtResultOk) {
-        snprintf(
-            app->popup_text, sizeof(app->popup_text), "AT+IPR %s", sim800_at_result_text(result));
+    // Some boards reject AT+IPR with ERROR; others switch rate before/during OK so it looks
+    // like a timeout at the old baud. Only abort early on an explicit error or closed port.
+    Sim800AtResult result = sim800_uart_command(app->uart, cmd, 3000, app->task_response);
+    if(result == Sim800AtResultError || result == Sim800AtResultNotOpen) {
+        furi_string_trim(app->task_response);
+        if(furi_string_size(app->task_response) > 0) {
+            snprintf(
+                app->popup_text,
+                sizeof(app->popup_text),
+                "%s",
+                furi_string_get_cstr(app->task_response));
+        } else {
+            snprintf(
+                app->popup_text,
+                sizeof(app->popup_text),
+                "AT+IPR: %s",
+                sim800_at_result_text(result));
+        }
         app->task_result = result;
         return;
     }
@@ -42,7 +62,7 @@ static void sim800_set_baud_task(Sim800App* app) {
     app->last_ok = true;
     app->task_result = Sim800AtResultOk;
 
-    if(sim800_uart_command(app->uart, "AT&W", 3000, NULL) == Sim800AtResultOk) {
+    if(sim800_uart_store_profile(app->uart, NULL) == Sim800AtResultOk) {
         snprintf(app->popup_text, sizeof(app->popup_text), "Now at %lu", app->pending_baud);
     } else {
         // Set and working, but the module will not come back on it by itself

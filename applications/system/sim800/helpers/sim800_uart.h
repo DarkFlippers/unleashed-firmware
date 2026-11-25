@@ -44,6 +44,17 @@ Sim800AtResult sim800_uart_command(
     uint32_t timeout_ms,
     FuriString* response);
 
+/** Like ::sim800_uart_command, but extends the wait while bytes keep arriving (up to @p max_ms). */
+Sim800AtResult sim800_uart_command_long(
+    Sim800Uart* uart,
+    const char* cmd,
+    uint32_t idle_ms,
+    uint32_t max_ms,
+    FuriString* response);
+
+/** Save active module profile with AT&W0, falling back to bare AT&W. */
+Sim800AtResult sim800_uart_store_profile(Sim800Uart* uart, FuriString* response);
+
 /** For commands that answer with "> " and take a Ctrl-Z terminated body, like AT+CMGS. */
 /** Dial or answer. Unlike ::sim800_uart_command, BUSY and NO CARRIER end this one. */
 Sim800AtResult sim800_uart_command_call(
