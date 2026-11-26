@@ -227,9 +227,10 @@ static void storage_cli_write(PipeSide* pipe, FuriString* path, FuriString* args
         uint32_t read_index = 0;
 
         while(true) {
-            uint8_t symbol = getchar();
+            int input = getchar();
+            uint8_t symbol = input;
 
-            if(symbol == CliKeyETX) {
+            if(input == EOF || symbol == CliKeyETX) {
                 size_t write_size = read_index % buffer_size;
 
                 if(write_size > 0) {
@@ -238,8 +239,8 @@ static void storage_cli_write(PipeSide* pipe, FuriString* path, FuriString* args
                     if(written_size != write_size) {
                         storage_cli_print_error(storage_file_get_error(file));
                     }
-                    break;
                 }
+                break;
             }
 
             buffer[read_index % buffer_size] = symbol;
@@ -286,7 +287,9 @@ static void storage_cli_read_chunks(PipeSide* pipe, FuriString* path, FuriString
             uint8_t* data = malloc(buffer_size);
             while(file_size > 0) {
                 printf("\r\nReady?\r\n");
-                getchar();
+                if(getchar() == EOF) {
+                    break;
+                }
 
                 size_t read_size = storage_file_read(file, data, buffer_size);
                 for(size_t i = 0; i < read_size; i++) {
