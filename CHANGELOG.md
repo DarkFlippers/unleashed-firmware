@@ -44,6 +44,7 @@
 - SubGHz: **Fix renaming a saved file with a 64+ character name dropping its `.sub` extension** (by @jeje77131 | PR #1242)
 - Furi: **`realloc()` copies only the old block when growing, and `calloc()` checks for overflow** (by @jeje77131 | PR #1243)
 - SIM800: **Fix SIM800C wake/baud/profile-store timeouts and persist audio settings; add embedded Cyrillic `.fal` viewer for SMS, history, and USSD with UCS2 decoding, cached chunked inbox, multipart SMS read/delete/history, delete confirmation, and incoming SMS alerts**
+- NFC: **Emit cascade-level-1 SAK `0x24` for 7-byte ISO14443-4 cards (DESFire, MIFARE Plus, NTAG 424 DNA) while keeping `0x04` for non-ISO-4 7-byte tags** (by @Tristus1er | OFW PR 4522)
 <br><br>
 
 ----
