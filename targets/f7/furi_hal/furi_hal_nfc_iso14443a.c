@@ -244,9 +244,7 @@ FuriHalNfcError furi_hal_nfc_iso14443a_listener_set_col_res_data(
     if(uid_len == 4) {
         pt_memory[12] = sak & ~0x04;
     } else {
-        // Mirror ISO14443-4 bit (0x20) at CL1 (0x24) for 7-byte ISO-4 cards like genuine NXP DESFire,
-        // while keeping standard 0x04 for non-ISO-4 7-byte cards (Ultralight/NTAG/Classic).
-        pt_memory[12] = 0x04 | (sak & 0x20);
+        pt_memory[12] = 0x04;
     }
     pt_memory[13] = sak & ~0x04;
     pt_memory[14] = sak & ~0x04;
