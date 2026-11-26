@@ -23,6 +23,7 @@
 - OFW: fix: resolve PVS-Studio warnings reported on dev
 - OFW: Fix BLE key storage callback lifetime across radio restarts
 - OFW: Fix BadUSB `MOUSESCROLL`/`MOUSEMOVE` reading past end of line without arguments
+- OFW: Storage CLI: stop `storage write` and `read_chunks` when the host closes the session
 - NFC: **Fix third-party NFC apps reading the wrong NTAG/Ultralight pages (Weebo "Wrong password" on every amiibo) - the Ultralight AES fields no longer sit in the middle of `MfUltralightData`**
 - SubGHz: **Fix the read list beep going missing with `Delete old signals` on and memory full**
 - SubGHz: **A signal turned away by a full read list now buzzes with `Delete old signals` on too**
