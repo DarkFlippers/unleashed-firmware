@@ -139,10 +139,10 @@ static const KeeloqResyncPack keeloq_resync_packs[] = {
 
 // The sync gap is what decides the rate: 10*Te, so 2000us for the half rate against 4000us
 // for the standard one. The half rate is locked only when the gap is unmistakably in its own
-// band, Te 155..245us. A gap outside that keeps the original path with the original
-// tolerance, so nothing that used to decode stops decoding, and the locked Te always stays
-// close enough to the real one that 2*Te+delta cannot be mistaken for the end of the frame.
-#define KEELOQ_TE_FAST_GAP_DELTA 450u
+// band, Te 170..230us, and the preamble stays within the 12-pulse HCS spec (+2 margin) so
+// slower 66-bit remotes (~250us, longer preamble) do not false-trigger KeeloqHR.
+#define KEELOQ_TE_FAST_GAP_DELTA  300u
+#define KEELOQ_TE_FAST_HEADER_MAX 14u
 
 //variable used to bypass CounterMode settings if user just change Counter or Button
 static bool bypass = false;
@@ -1186,7 +1186,8 @@ void subghz_protocol_decoder_keeloq_feed(void* context, bool level, uint32_t dur
             // Half rate first, on its own narrow band; otherwise the standard rate on
             // exactly the band it has always accepted.
             uint32_t te = 0;
-            if(DURATION_DIFF(duration, KEELOQ_TE_FAST * 10) < KEELOQ_TE_FAST_GAP_DELTA) {
+            if((instance->header_count <= KEELOQ_TE_FAST_HEADER_MAX) &&
+               (DURATION_DIFF(duration, KEELOQ_TE_FAST * 10) < KEELOQ_TE_FAST_GAP_DELTA)) {
                 // The gap is 10*Te by definition, so this measures the encoder's real Te
                 // rather than assuming the nominal 200us.
                 te = duration / 10;
