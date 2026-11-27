@@ -21,7 +21,7 @@ That list is only for default SubGHz app, apps like *Weather Station* have their
 - Alutech AT-4N `433.92MHz` `AM650` (72 bits, Dynamic)
 - AN-Motors (Alutech) AT4 `433.92MHz` `AM650` (64 bits, Pseudo-Dynamic, KeeLoq based)
 - Ansonic `433MHz` `FM` (12 bits, Static)
-- BelKorn `433.92MHz` `AM650` (118 bits, Dynamic) (Korn, BelGate, Furniteh, other rebrands) - not encrypted, 36 bit serial and a plaintext counter that steps once per click; the frame carries no manufacturer field, so every remote reads as `BelKorn` - Add Manually: **BelKorn**
+- BelKorn `433.92MHz` `AM650` (118 bits, Dynamic) (Korn, BelGate, Furniteh, Euro5, other rebrands) - not encrypted, 36 bit serial and a plaintext counter that steps once per click; the frame carries no manufacturer field, so every remote reads as `BelKorn` - Add Manually: **BelKorn**
 - Beninca ARC (TOGO2VA) `433.92MHz` `AM650` (128 bits, Dynamic AES128) (button code `0` emulates `hidden button` option on the remote)
 - BETT `433.92MHz` `AM650` (18 bits, Static)
 - BFT Mitto `433.92MHz` `AM650` (64 bits, Dynamic, KeeLoq based with Seed) - (newer remotes make the Seed from the serial and decode on the fly in a normal Read; older models have a unique Seed that is required to decode, get it from a remote in programming mode or with the `Seed Capturer` app + qUnleashed; button code `0xF` is programming mode, it sends the Seed in the clear) - Add Manually: **BFT Mitto 433MHz**

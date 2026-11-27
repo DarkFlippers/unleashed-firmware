@@ -1,7 +1,7 @@
 ## Main changes
 - Current API: 88.27
 - Apps: Build tag (**27nov2026p4**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
-- SubGHz: **New protocol - BelKorn, 118 bits, rolling code with no encryption, 36-bit serial, with custom buttons and Add Manually** - (Korn, BelGate, Furniteh and other rebrands; the frame carries no manufacturer field, so they all read as `BelKorn`)
+- SubGHz: **New protocol - BelKorn, 118 bits, rolling code with no encryption, 36-bit serial, with custom buttons and Add Manually** - (Korn, BelGate, Furniteh, Euro5 and other rebrands; the frame carries no manufacturer field, so they all read as `BelKorn`)
 - SubGHz: **New KeeLoq manufacturer - FAAC FIX, with `KL: FAAC FIX` in Add Manually and custom button support** (thanks @Anat01y)
 - SubGHz: **Alutech AT-4N: Add Manually `Alutech AT4L` (`0x1Dxxxxxx` prefix) and full smart clone packs in CounterMode 1 & 2** - Mode 1 uses a 3-press cycle (`0x0000` x4, `0x0001` x4, then `0xFFFE` x4 + `0xFFFF` x4 in one press for MCSW-3.3M); Mode 2 sends `0x0000..0x0005` (14 frames) in a single press while preserving the file counter
 - SubGHz: **The read list names the system a multi-system protocol decoded, instead of the protocol - CAME, Nice FloR-S, Faac SLH and KeeLoq**
