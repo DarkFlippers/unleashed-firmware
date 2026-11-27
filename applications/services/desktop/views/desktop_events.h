@@ -48,6 +48,10 @@ typedef enum {
     DesktopQuickSettingsEventBrightnessChanged,
     DesktopQuickSettingsEventVolumeChanged,
     DesktopQuickSettingsEventVibroChanged,
+    DesktopQuickSettingsEventDummyChanged,
+    DesktopQuickSettingsEventBluetoothChanged,
+    DesktopQuickSettingsEventMuteChanged,
+    DesktopQuickSettingsEventHandChanged,
     DesktopQuickSettingsEventSave,
     DesktopQuickSettingsEventClose,
 
