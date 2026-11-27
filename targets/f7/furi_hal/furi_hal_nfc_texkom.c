@@ -4,7 +4,10 @@
 #include <digital_signal/presets/nfc/texkom_signal.h>
 #include <signal_reader/signal_reader.h>
 
+#include <furi_hal_bus.h>
+#include <furi_hal_gpio.h>
 #include <furi_hal_resources.h>
+#include <furi_hal_speaker.h>
 
 /**
  * Texkom tags neither answer commands nor take part in anticollision - they just load-modulate a
@@ -347,6 +350,16 @@ static FuriHalNfcError furi_hal_nfc_texkom_poller_rx(
 
     *rx_bits = 0;
 
+    // signal_reader uses TIM16, which is shared with furi_hal_speaker. Claim the speaker mutex
+    // without blocking so a background notification beep cannot collide with us, and skip this
+    // listening window if an app holds the speaker (or TIM16 is otherwise busy) instead of
+    // crashing inside furi_hal_bus_enable(FuriHalBusTIM16).
+    if(furi_hal_bus_is_enabled(FuriHalBusTIM16) || !furi_hal_speaker_acquire(0)) {
+        return FuriHalNfcErrorCommunicationTimeout;
+    }
+    furi_hal_gpio_init(&gpio_speaker, GpioModeAnalog, GpioPullDown, GpioSpeedLow);
+    furi_hal_bus_disable(FuriHalBusTIM16);
+
     FuriHalNfcTexkomCapture capture = {0};
     // Start saturated, so the first impulse is neither swallowed by the refractory window nor
     // taken for the end of a frame.
@@ -370,6 +383,9 @@ static FuriHalNfcError furi_hal_nfc_texkom_poller_rx(
     signal_reader_stop(furi_hal_nfc_texkom_reader);
 
     furi_hal_nfc_transparent_mode_exit(handle);
+
+    furi_hal_bus_enable(FuriHalBusTIM16);
+    furi_hal_speaker_release();
 
     if(capture.frame_count == 0) {
         FURI_LOG_D(TAG, "No frame, longest train %zu gaps", capture.longest_train);
