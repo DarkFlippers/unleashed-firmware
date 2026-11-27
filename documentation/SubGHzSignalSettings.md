@@ -95,6 +95,7 @@ protocol !
 - One byte, the header tells you the length, for example `Enter 4-bits button in HEX`
 - Which codes your receiver reacts to depends on the system, the original remote's codes are the ones to try
 - Locked when the protocol has no button
+- Also unlocked for static protocols that carry a button code: Princeton, Dooya, GangQi, Hollarm, Nord ICE, Proteco and Roger
 
 
 <br>
@@ -103,12 +104,11 @@ protocol !
 ## Be aware - confirming an edit transmits
 
 > [!WARNING]
-> `Edit Counter` and `Edit Button` save the new value by running the transmit path. The firmware starts a transmission and stops it immediately, and the file is rewritten when that transmission stops.
+> `Edit Counter` and `Edit Button` write the new value to the file using the signal transmission mechanism: the firmware starts a transmission with the new value and stops it immediately, and the file is rewritten when that transmission stops.
 
-- So a short burst goes out on the frequency of the signal, with the new value in it, as if you pressed send once
-- If that frequency is receive only for your region, the transmission is refused and the edit is not saved - see [How to extend Sub-GHz frequency range](/documentation/DangerousSettings.md)
+- A short burst goes out on the frequency of the signal with the new value in it, so do this away from a receiver you do not want to operate
+- If that frequency cannot be transmitted, the edit is not saved - see [How to extend Sub-GHz frequency range](/documentation/DangerousSettings.md)
 - `Edit Button` sets the rolling counter multiplier to 0 for that save and restores it after, so the counter does not move
-- Only dynamic (rolling code) protocols are written back this way
 
 <br>
 <br>

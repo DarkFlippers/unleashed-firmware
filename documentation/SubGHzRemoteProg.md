@@ -28,7 +28,7 @@ So: if your remote is static, read and save it. If it is rolling code, find your
 
 Which arrow is which depends on the protocol. Where a receiver wants a *hidden* or *programming* button - a recessed pin hole, two buttons held together, pads you bridge inside the case - the Flipper sends it as **one single key press**. Each section below tells you which key that is, and there is a full table in [Programming / hidden button reference](#programming--hidden-button-reference).
 
-**Hold the key down.** The Flipper transmits only while a key is held. A quick tap often sends an incomplete code. Hold for 1-3 seconds unless a step says otherwise.
+**Hold the key down.** Hold `Send` for 1-3 seconds unless a step says otherwise. A single press sends a complete code packet, while holding repeats it so the receiver has more time to pick it up.
 
 **Timing matters.** Most receivers open a programming window of 5, 10 or 30 seconds. Read the whole procedure before you start so you are not reading it while the window is closing.
 
@@ -1039,7 +1039,7 @@ That covers most KeeLoq systems - Comunello, Allmatic, Motorline, Centurion, Pha
 
 **The receiver reacts but never stores the remote.** You are probably missing the time window. Re-read the steps and have the remote file already open before you touch the receiver button.
 
-**It stored the remote but nothing opens.** Hold `Send` longer. The Flipper transmits only while a key is held, and several protocols need 1-3 seconds to get a full code out. CAME Atomo needs at least 2 seconds every time.
+**It stored the remote but nothing opens.** Hold `Send` longer. Several protocols need 1-3 seconds for the receiver to accept the signal, and CAME Atomo needs at least 2 seconds every time.
 
 **It worked once and then stopped.** On a rolling code system that is a counter problem, and it means you cloned a remote instead of making a new one. Press `Send` a few more times in a row - the receiver accepts a counter that ran ahead, within a window. If you want both remotes working at the same time, create a new remote instead of cloning. This cannot happen on a static code remote, where there is no counter at all - if a static remote stops working, look at the battery, the frequency, or the receiver.
 

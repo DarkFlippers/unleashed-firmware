@@ -6,7 +6,6 @@
 <br>
 <br>
 
-### **If installing for first time - Update to the latest official firmware before proceeding**
 ### **If you are already using unleashed - no need to install any other FW or version before installing update, just install latest version on top of your current one, all will be fine**
 ### **Recommended way to install and update - [qUnleashed app](#with-qunleashed-app-recommended), works on Android, iOS, Windows, macOS and Linux**
 
@@ -15,7 +14,7 @@
 
 ## With qUnleashed app (recommended)
 
-- Be sure you updated to latest official release before(only if installing for the first time), and verify that microSD card is installed
+- Verify that a microSD card is installed
 - Install qUnleashed on your phone or computer - [Download qUnleashed](https://github.com/DarkFlippers/qUnleashed/releases) (Android, iOS, Windows, macOS, Linux)
 - Connect your device over USB, or over Bluetooth(BLE) - on iOS only Bluetooth is available
 - Open the firmware updater in the app
@@ -33,7 +32,7 @@
 
 ## With Unleashed FW Web Installer
 
-- Be sure you updated to latest official release before(only if installing for the first time), and verify that microSD card is installed
+- Verify that a microSD card is installed
 - Open [-> Unleashed FW Web Installer](https://web.unleashedflip.com)
 - Connect your device and press `Connect` button - Select your device in popup window (be sure to use Chromium based browser)
 - Select Release or Dev branch
@@ -49,7 +48,7 @@
 
 ## With Flipper Lab - Web Updater
 
-- Be sure you updated to latest official release before(only if installing for the first time), and verify that microSD card is installed
+- Verify that a microSD card is installed
 - Open latest release page - [Releases](https://github.com/DarkFlippers/unleashed-firmware/releases/latest)
 - Connect your device and follow link - `Install via Web Updater`
 after that on web updater page - press `Connect` button
@@ -66,7 +65,7 @@ after that on web updater page - press `Connect` button
 
 ## With iOS mobile app
 
-- Be sure you updated to latest official release before(only if installing for the first time), and verify that microSD card is installed
+- Verify that a microSD card is installed
 - Open latest release page - [Releases](https://github.com/DarkFlippers/unleashed-firmware/releases/latest)
 - Download `flipper-z-f7-update-(version).tgz`
 - Open downloads in ios Files app, select downloaded `.tgz` file, click Share, select Flipper App
@@ -82,7 +81,7 @@ after that on web updater page - press `Connect` button
 
 ## With Android mobile app (with .tgz download)
 
-- Be sure you updated to latest official release before(only if installing for the first time), and verify that microSD card is installed
+- Verify that a microSD card is installed
 - Open latest release page - [Releases](https://github.com/DarkFlippers/unleashed-firmware/releases/latest)
 - Download `flipper-z-f7-update-(version).tgz`
 - In flipper app click `Update channel` button, select `Custom`
@@ -99,7 +98,7 @@ after that on web updater page - press `Connect` button
 
 ## With Android mobile app (via web updater link)
 
-- Be sure you updated to latest official release before(only if installing for the first time), and verify that microSD card is installed
+- Verify that a microSD card is installed
 - Open latest release page - [Releases](https://github.com/DarkFlippers/unleashed-firmware/releases/latest)
 - Click `Install via Web Updater`
 - It will ask to open with browser or Flipper app, select Flipper App
@@ -116,7 +115,7 @@ after that on web updater page - press `Connect` button
 ## With qFlipper (1.2.0+)
 
 - Download qFlipper that allows `.tgz` installation [Download qFlipper (official link)](https://flipperzero.one/update)
-- Be sure you updated to latest official release before(only if installing for the first time), and verify that microSD card is installed
+- Verify that a microSD card is installed
 - Open latest release page - [Releases](https://github.com/DarkFlippers/unleashed-firmware/releases/latest)
 - Download `flipper-z-f7-update-(version).tgz`
 - Launch qFlipper
