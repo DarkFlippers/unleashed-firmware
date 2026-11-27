@@ -1,36 +1,32 @@
 ## Main changes
 - Current API: 88.27
 - Apps: Build tag (**27nov2026p3**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
-- SubGHz: **New protocol - BelKorn, 118 bits, rolling code with no encryption, 36 bit serial, with custom buttons** - (Korn, BelGate, Furniteh and other rebrands; the frame carries no manufacturer field, so they all read as `BelKorn`)
-- SubGHz: **Add Manually: `BelKorn`**
+- SubGHz: **New protocol - BelKorn, 118 bits, rolling code with no encryption, 36-bit serial, with custom buttons and Add Manually** - (Korn, BelGate, Furniteh and other rebrands; the frame carries no manufacturer field, so they all read as `BelKorn`)
+- SubGHz: **New KeeLoq manufacturer - FAAC FIX, with `KL: FAAC FIX` in Add Manually and custom button support** (thanks @Anat01y)
+- SubGHz: **Alutech AT-4N: Add Manually `Alutech AT4L` (`0x1Dxxxxxx` prefix) and full smart clone packs in CounterMode 1 & 2** - Mode 1 uses a 3-press cycle (`0x0000` x4, `0x0001` x4, then `0xFFFE` x4 + `0xFFFF` x4 in one press for MCSW-3.3M); Mode 2 sends `0x0000..0x0005` (14 frames) in a single press while preserving the file counter
 - SubGHz: **The read list names the system a multi-system protocol decoded, instead of the protocol - CAME, Nice FloR-S, Faac SLH and KeeLoq**
-- SubGHz: **DEA Mio sends back the discriminator the original remote sent, instead of always setting the overflow bits**
-- SubGHz: **DEA Mio asks for the discriminator in Advanced Add Manually and shows it as `Ds:`**
-- SubGHz: **Advanced Add Manually asks for TE where the protocol carries one - Princeton, ZKTeco and FAAC TM**
-- SubGHz: **Advanced Add Manually asks for the guard time after TE, where the protocol carries one - Princeton and ZKTeco**
-- SubGHz: **Add Manually has one entry per system, with the frequency and modulation picked in the next screen**
-- SubGHz: **The band picker lists the system's own frequencies first and every other one below, so an odd installation can still be crafted**
+- SubGHz: **DEA Mio preserves the original remote's discriminator, shows it as `Ds:`, and asks for it in Advanced Add Manually**
+- SubGHz: **Add Manually now has one entry per system, followed by a frequency/modulation picker listing the system's own frequencies first and every other one below**
+- SubGHz: **Advanced Add Manually asks for TE (Princeton, ZKTeco, FAAC TM) and guard time (Princeton, ZKTeco) where the protocol carries them**
 - SubGHz: **`More` on a saved RAW file now has an `Edit` entry that opens it straight in Sub-GHz RAW Edit and returns to Sub-GHz when you leave the editor** (by @Lechnio | PR #1221)
-- Apps: **Sub-GHz RAW Edit ships with the firmware now** - it is no longer part of the extra pack (by [Lechnio](https://github.com/Lechnio/SubGHz-RAW-Edit))
-- Apps: **New app - SIM800, drives a SIM800 GSM module over the GPIO UART: voice calls, SMS, a phonebook of numbers and SMS presets, and the module's network, inbox, USSD, DTMF, audio and power commands** - `Apps -> GPIO -> SIM800`, see [wiring and powering](/documentation/SIM800.md)
+- Apps: **Sub-GHz RAW Edit v2.0 ships with the firmware now** - no longer part of the extra pack; SD-backed editing with no length limit, Copy/Paste, Undo history, Decode and Locate (by [Lechnio](https://github.com/Lechnio/SubGHz-RAW-Edit))
+- Apps: **New app - SIM800, drives a SIM800 GSM module over GPIO UART: voice calls, SMS (including multipart & UCS2/Cyrillic), incoming SMS alerts, phonebook & SMS presets, inbox, USSD, DTMF, audio and power commands** - `Apps -> GPIO -> SIM800`, see [wiring and powering](/documentation/SIM800.md)
 - Archive: **New `Phone` tab for the SIM800 phonebook - a `.phone` entry opens straight in the app**
 - BadUSB: **New `DUCKY_LANG` script command - a script picks its own keyboard layout from `badusb/assets/layouts/<name>.kl`, instead of every script running on the one layout set in the app** (the native `.kl` map is ASCII only, and a missing or invalid name falls back to the built-in en-US) (by @ANTONiO-eagle | PR #1224 | Closes #1218)
-- SubGHz: **New KeeLoq manufacturer - FAAC FIX, with `KL: FAAC FIX` in Add Manually and custom button support** (thanks @Anat01y)
-- SubGHz: **Add Manually: `Alutech AT4L`** (`Alutech AT-4N` protocol with `0x1Dxxxxxx` serial prefix)
-- SubGHz: **Alutech AT-4N CounterMode 1 & 2 now transmit full smart clone packs** - Mode 1 uses a 3-press cycle (`0x0000` x4, `0x0001` x4, then `0xFFFE` x4 + `0xFFFF` x4 in one press for MCSW-3.3M); Mode 2 sends `0x0000..0x0005` (14 frames) in a single press while preserving the file counter
 - JS: **New `usbdisk.createImage(path, size)` method to create empty disk images**
 ## Other changes
 - OFW: fix: resolve PVS-Studio warnings reported on dev
 - OFW: Fix BLE key storage callback lifetime across radio restarts
 - OFW: Fix BadUSB `MOUSESCROLL`/`MOUSEMOVE` reading past end of line without arguments
 - OFW: Storage CLI: stop `storage write` and `read_chunks` when the host closes the session
+- OFW: BLE HID service: only claim GATT writes to its own attributes
 - NFC: **Fix third-party NFC apps reading the wrong NTAG/Ultralight pages (Weebo "Wrong password" on every amiibo) - the Ultralight AES fields no longer sit in the middle of `MfUltralightData`**
-- SubGHz: **Fix the read list beep going missing with `Delete old signals` on and memory full**
-- SubGHz: **A signal turned away by a full read list now buzzes with `Delete old signals` on too**
-- Remote Analyzer: **BelGate dropped from the app, it is a firmware Sub-GHz protocol now**
-- Remote Analyzer: **`How to use` lists the protocols the app decodes on its own**
+- NFC: **Fix Texkom reader crashing when the speaker / TIM16 bus is busy**
+- SubGHz: **Half-rate KeeLoq remotes now show their real manufacturer instead of `Crypt Key`, marked as `KL HR` in the read list and `66b HR` in signal info**
+- SubGHz: **Fix KeeLoq/KeeloqHR false positives on ~250us 66-bit remotes by tightening sync-gap bounds and validating bit period**
+- SubGHz: **Fix missing read list beep/buzz with `Delete old signals` on when memory or the list is full**
+- Remote Analyzer: **Drop BelGate (now a firmware Sub-GHz protocol) and list self-decoded protocols in `How to use`**
 - SubGHz: **Advanced Add Manually key field is now as long as the protocol's bits, instead of padding it with `00` to 8 bytes**
-- SubGHz: **Fix Add Manually failing on FAAC TM - only Princeton carries a `Guard_time`, so writing one into every TE protocol broke it**
 - SubGHz: **`subghz rx`, `tx` and `tx_from_file` over the CLI work on the internal radio again, instead of stopping at `Device 0 failed to start`** (by @GodKimba | PR #1216 | Fixes #1215)
 - SubGHz: **Feron frames are verified against their checksum, instead of any 32 bits that fit the timings decoding as Feron** (by @Lechnio | PR #1219)
 - SubGHz: **A settings file from another firmware no longer hides whole groups of protocols in Read - only the bits the `Ignore` options own are kept from a saved `IgnoreFilter`** (by @Lechnio | PR #1220)
@@ -44,8 +40,6 @@
 - GPS, Network: **Unsubscribing now waits for a running callback to finish** (by @jeje77131 | PR #1241)
 - SubGHz: **Fix renaming a saved file with a 64+ character name dropping its `.sub` extension** (by @jeje77131 | PR #1242)
 - Furi: **`realloc()` copies only the old block when growing, and `calloc()` checks for overflow** (by @jeje77131 | PR #1243)
-- SIM800: **Fix SIM800C wake/baud/profile-store timeouts and persist audio settings; add embedded Cyrillic `.fal` viewer for SMS, history, and USSD with UCS2 decoding, cached chunked inbox, multipart SMS read/delete/history, delete confirmation, and incoming SMS alerts**
-- SubGHz: **Fix KeeLoq/KeeloqHR false positives on ~250us 66-bit remotes by tightening sync-gap bounds and validating bit period**
 <br><br>
 
 ----
