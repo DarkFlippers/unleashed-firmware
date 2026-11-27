@@ -95,7 +95,6 @@ void gps_on_location(Gps* gps, GpsStatus status, const GpsLocation* location) {
     furi_mutex_release(gps->callback_mutex);
 }
 
-void gps_on_system_start(void* p) {
-    UNUSED(p);
+void gps_on_system_start(void) {
     furi_record_create(RECORD_GPS, gps_alloc());
 }

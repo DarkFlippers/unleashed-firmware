@@ -171,7 +171,6 @@ void network_on_event(Network* network, const NetworkEvent* event) {
     furi_mutex_release(network->callback_mutex);
 }
 
-void network_on_system_start(void* p) {
-    UNUSED(p);
+void network_on_system_start(void) {
     furi_record_create(RECORD_NETWORK, network_alloc());
 }

@@ -77,6 +77,11 @@ vars.AddVariables(
         default=False,
     ),
     BoolVariable(
+        "FW_LTO",
+        help="Opt in to LTO for the compact non-debug F7 main firmware",
+        default=False,
+    ),
+    BoolVariable(
         "COMPACT",
         help="Optimize for size",
         default=True,

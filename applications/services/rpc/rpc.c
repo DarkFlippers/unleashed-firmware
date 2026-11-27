@@ -438,8 +438,7 @@ void rpc_session_close(RpcSession* session) {
     furi_thread_flags_set(furi_thread_get_id(session->thread), RpcEvtDisconnect);
 }
 
-void rpc_on_system_start(void* p) {
-    UNUSED(p);
+void rpc_on_system_start(void) {
     Rpc* rpc = malloc(sizeof(Rpc));
 
     rpc->busy_mutex = furi_mutex_alloc(FuriMutexTypeNormal);

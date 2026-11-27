@@ -1,17 +1,12 @@
 #include "storage_settings.h"
 
-const SubmenuSettingsHelperDescriptor descriptor_template = {
-    .app_name = "Storage",
-    .options_cnt = 6,
-    .options =
-        {
-            {.name = "About Internal Storage", .scene_id = StorageSettingsInternalInfo},
-            {.name = "About SD Card", .scene_id = StorageSettingsSDInfo},
-            {.name = "Unmount SD Card", .scene_id = StorageSettingsUnmountConfirm},
-            {.name = "Format SD Card", .scene_id = StorageSettingsFormatConfirm},
-            {.name = "Benchmark SD Card", .scene_id = StorageSettingsBenchmarkConfirm},
-            {.name = "Factory Reset", .scene_id = StorageSettingsFactoryReset},
-        },
+static const SubmenuSettingsHelperOption storage_settings_options[] = {
+    {.name = "About Internal Storage", .scene_id = StorageSettingsInternalInfo},
+    {.name = "About SD Card", .scene_id = StorageSettingsSDInfo},
+    {.name = "Unmount SD Card", .scene_id = StorageSettingsUnmountConfirm},
+    {.name = "Format SD Card", .scene_id = StorageSettingsFormatConfirm},
+    {.name = "Benchmark SD Card", .scene_id = StorageSettingsBenchmarkConfirm},
+    {.name = "Factory Reset", .scene_id = StorageSettingsFactoryReset},
 };
 
 static bool storage_settings_custom_event_callback(void* context, uint32_t event) {
@@ -54,11 +49,12 @@ static StorageSettings* storage_settings_alloc(void) {
     view_dispatcher_add_view(
         app->view_dispatcher, StorageSettingsViewDialogEx, dialog_ex_get_view(app->dialog_ex));
 
-    size_t descriptor_size =
-        sizeof(SubmenuSettingsHelperDescriptor) +
-        (descriptor_template.options_cnt * sizeof(SubmenuSettingsHelperOption));
-    app->helper_descriptor = malloc(descriptor_size);
-    memcpy(app->helper_descriptor, &descriptor_template, descriptor_size);
+    app->helper_descriptor =
+        malloc(sizeof(SubmenuSettingsHelperDescriptor) + sizeof(storage_settings_options));
+    app->helper_descriptor->app_name = "Storage";
+    app->helper_descriptor->options_cnt = COUNT_OF(storage_settings_options);
+    memcpy(
+        app->helper_descriptor->options, storage_settings_options, sizeof(storage_settings_options));
     app->settings_helper = submenu_settings_helpers_alloc(app->helper_descriptor);
     submenu_settings_helpers_assign_objects(
         app->settings_helper,
