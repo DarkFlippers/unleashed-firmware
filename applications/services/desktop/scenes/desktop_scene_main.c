@@ -132,7 +132,8 @@ bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
             break;
 
         case DesktopMainEventOpenLockMenu:
-            scene_manager_next_scene(desktop->scene_manager, DesktopSceneLockMenu);
+            // Hybridus: one press Up opens brightness/volume, no second page needed.
+            scene_manager_next_scene(desktop->scene_manager, DesktopSceneQuickSettings);
             consumed = true;
             break;
 
