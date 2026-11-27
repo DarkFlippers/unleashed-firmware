@@ -138,11 +138,11 @@ static const KeeloqResyncPack keeloq_resync_packs[] = {
 // and every later timing check is scaled by it. Nothing else about the frame changes.
 
 // The sync gap is what decides the rate: 10*Te, so 2000us for the half rate against 4000us
-// for the standard one. The half rate is locked only when the gap is unmistakably in its own
-// band, Te 170..230us, and the preamble stays within the 12-pulse HCS spec (+2 margin) so
-// slower 66-bit remotes (~250us, longer preamble) do not false-trigger KeeloqHR.
-#define KEELOQ_TE_FAST_GAP_DELTA  300u
-#define KEELOQ_TE_FAST_HEADER_MAX 14u
+// for the standard one. The half rate locks on Te 165..235us and the standard rate starts at
+// Te 300us (keeping its +45% upper margin to 5800us), leaving a 2350..3000us dead zone so
+// ~250us 66-bit remotes cannot false-trigger either branch.
+#define KEELOQ_TE_FAST_GAP_DELTA 350u
+#define KEELOQ_TE_STD_GAP_MIN    3000u
 
 //variable used to bypass CounterMode settings if user just change Counter or Button
 static bool bypass = false;
@@ -1186,14 +1186,15 @@ void subghz_protocol_decoder_keeloq_feed(void* context, bool level, uint32_t dur
             // Half rate first, on its own narrow band; otherwise the standard rate on
             // exactly the band it has always accepted.
             uint32_t te = 0;
-            if((instance->header_count <= KEELOQ_TE_FAST_HEADER_MAX) &&
-               (DURATION_DIFF(duration, KEELOQ_TE_FAST * 10) < KEELOQ_TE_FAST_GAP_DELTA)) {
+            if(DURATION_DIFF(duration, KEELOQ_TE_FAST * 10) < KEELOQ_TE_FAST_GAP_DELTA) {
                 // The gap is 10*Te by definition, so this measures the encoder's real Te
                 // rather than assuming the nominal 200us.
                 te = duration / 10;
             } else if(
-                DURATION_DIFF(duration, (uint32_t)subghz_protocol_keeloq_const.te_short * 10) <
-                (uint32_t)subghz_protocol_keeloq_const.te_delta * 10) {
+                (duration >= KEELOQ_TE_STD_GAP_MIN) &&
+                (duration < ((uint32_t)subghz_protocol_keeloq_const.te_short +
+                             (uint32_t)subghz_protocol_keeloq_const.te_delta) *
+                                10)) {
                 te = subghz_protocol_keeloq_const.te_short;
             }
             if(te != 0) {
@@ -1216,7 +1217,11 @@ void subghz_protocol_decoder_keeloq_feed(void* context, bool level, uint32_t dur
         break;
     case KeeloqDecoderStepCheckDuration:
         if(!level) {
-            if(duration >= (instance->te * 2 + subghz_protocol_keeloq_te_delta(instance->te))) {
+            const uint32_t te_delta = subghz_protocol_keeloq_te_delta(instance->te);
+            const uint32_t period_delta = (instance->te == subghz_protocol_keeloq_const.te_short) ?
+                                              (te_delta * 2) :
+                                              ((te_delta * 3) / 2);
+            if(duration >= (instance->te * 2 + te_delta)) {
                 // Found end TX
                 instance->decoder.parser_step = KeeloqDecoderStepReset;
                 if((instance->decoder.decode_count_bit >=
@@ -1236,10 +1241,10 @@ void subghz_protocol_decoder_keeloq_feed(void* context, bool level, uint32_t dur
                 }
                 break;
             } else if(
-                (DURATION_DIFF(instance->decoder.te_last, instance->te) <
-                 subghz_protocol_keeloq_te_delta(instance->te)) &&
-                (DURATION_DIFF(duration, instance->te * 2) <
-                 subghz_protocol_keeloq_te_delta(instance->te) * 2)) {
+                (DURATION_DIFF(instance->decoder.te_last, instance->te) < te_delta) &&
+                (DURATION_DIFF(duration, instance->te * 2) < te_delta * 2) &&
+                (DURATION_DIFF(instance->decoder.te_last + duration, instance->te * 3) <
+                 period_delta)) {
                 if(instance->decoder.decode_count_bit <
                    subghz_protocol_keeloq_const.min_count_bit_for_found) {
                     subghz_protocol_blocks_add_bit(&instance->decoder, 1);
@@ -1248,10 +1253,10 @@ void subghz_protocol_decoder_keeloq_feed(void* context, bool level, uint32_t dur
                 }
                 instance->decoder.parser_step = KeeloqDecoderStepSaveDuration;
             } else if(
-                (DURATION_DIFF(instance->decoder.te_last, instance->te * 2) <
-                 subghz_protocol_keeloq_te_delta(instance->te) * 2) &&
-                (DURATION_DIFF(duration, instance->te) <
-                 subghz_protocol_keeloq_te_delta(instance->te))) {
+                (DURATION_DIFF(instance->decoder.te_last, instance->te * 2) < te_delta * 2) &&
+                (DURATION_DIFF(duration, instance->te) < te_delta) &&
+                (DURATION_DIFF(instance->decoder.te_last + duration, instance->te * 3) <
+                 period_delta)) {
                 if(instance->decoder.decode_count_bit <
                    subghz_protocol_keeloq_const.min_count_bit_for_found) {
                     subghz_protocol_blocks_add_bit(&instance->decoder, 0);

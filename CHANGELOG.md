@@ -45,7 +45,7 @@
 - SubGHz: **Fix renaming a saved file with a 64+ character name dropping its `.sub` extension** (by @jeje77131 | PR #1242)
 - Furi: **`realloc()` copies only the old block when growing, and `calloc()` checks for overflow** (by @jeje77131 | PR #1243)
 - SIM800: **Fix SIM800C wake/baud/profile-store timeouts and persist audio settings; add embedded Cyrillic `.fal` viewer for SMS, history, and USSD with UCS2 decoding, cached chunked inbox, multipart SMS read/delete/history, delete confirmation, and incoming SMS alerts**
-- SubGHz: **Fix KeeloqHR false positives on slower ~250us 66-bit remotes by tightening the half-rate sync gap and preamble limits**
+- SubGHz: **Fix KeeLoq/KeeloqHR false positives on ~250us 66-bit remotes by tightening sync-gap bounds and validating bit period**
 <br><br>
 
 ----
