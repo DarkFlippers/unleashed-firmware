@@ -1,7 +1,7 @@
 App(
     appid="subghz",
     name="Sub-GHz",
-    apptype=FlipperAppType.APP,
+    apptype=FlipperAppType.MENUEXTERNAL,
     targets=["f7"],
     cdefines=["APP_SUBGHZ"],
     entry_point="subghz_app",
@@ -10,15 +10,12 @@ App(
         "cli",
         "dialogs",
     ],
-    provides=[
-        "subghz_load_dangerous_settings",
-    ],
     icon="A_Sub1ghz_14",
     stack_size=3 * 1024,
     order=1,
     resources="resources",
     # plugins/ ships as .fal - keep it out of the image. Exclusions are leaf names, not paths.
-    sources=["*.c*", "!plugins"],
+    sources=["*.c*", "!plugins", "!subghz_dangerous_freq.c"],
     fap_libs=["assets", "hwdrivers"],
     fap_icon="icon.png",
     fap_category="Sub-GHz",
@@ -37,7 +34,8 @@ App(
     appid="subghz_load_dangerous_settings",
     apptype=FlipperAppType.STARTUP,
     entry_point="subghz_dangerous_freq",
-    requires=["storage", "subghz"],
+    requires=["storage"],
+    sources=["subghz_dangerous_freq.c"],
     order=650,
 )
 

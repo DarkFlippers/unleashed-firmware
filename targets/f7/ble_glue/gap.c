@@ -1,4 +1,5 @@
 #include "gap.h"
+#include "ams_client_i.h"
 
 #include "app_common.h"
 #include <core/mutex.h>
@@ -110,6 +111,10 @@ static void gap_verify_connection_parameters(Gap* gap) {
         // Looks like the other side is open to negotiation
         gap->negotiation_round = 0;
     }
+}
+
+uint16_t gap_get_connection_handle(void) {
+    return gap ? gap->service.connection_handle : 0xFFFF;
 }
 
 BleEventFlowStatus ble_event_app_notification(void* pckt) {
@@ -551,6 +556,7 @@ bool gap_init(
     gap->service.adv_name = config->adv_name;
     gap_init_svc(gap, root_keys);
     ble_event_dispatcher_init();
+    ams_client_init();
     // Initialization of the GAP state
     gap->state_mutex = furi_mutex_alloc(FuriMutexTypeNormal);
     gap->state = GapStateIdle;
@@ -625,6 +631,7 @@ void gap_thread_stop(void) {
         furi_timer_free(gap->advertise_timer);
         gap->advertise_timer = NULL;
 
+        ams_client_deinit();
         ble_event_dispatcher_reset();
         free(gap);
         gap = NULL;
