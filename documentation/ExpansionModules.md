@@ -170,3 +170,16 @@ The checksum is calculated by bitwise XOR-ing every byte in the frame (excluding
 
 In the event of a detected error, the concerned side MUST cease all communications and reset to initial state. The other side will then experience
 a communication timeout and the connection will be re-established automatically.
+
+
+## Community VGM Display proposal
+
+[Issue #1244](https://github.com/DarkFlippers/unleashed-firmware/issues/1244) tracks an **unofficial user proposal** for an independent Video Game Module (VGM) display-firmware preview and a separate companion FAP. This is documentation of a community proposal, not an official Unleashed feature, acceptance, endorsement, or release.
+
+- [VGM Display preview release](https://github.com/ANTONiO-eagle/hybridus-vgm-display/releases/tag/vgm-display-v0.3.1-preview) — RP2040 VGM UF2, matching VGM source archive, and notices.
+- [VGM Display source repository](https://github.com/ANTONiO-eagle/hybridus-vgm-display)
+- [Desktop Settings companion FAP 0.2](https://github.com/ANTONiO-eagle/hybridus-vgm-display/releases/download/vgm-display-v0.3.1-preview/desktop-settings-v0.2.fap) — for the specifically identified Flipper Zero F7 / Hybridus API 88.27 environment.
+
+The VGM firmware is installed on the module using the existing Video Game Module Tool/custom-firmware flow; it is not a Flipper Zero firmware asset and is not added to this repository by this documentation entry. The companion FAP is separate from the module installer. The FAP source archive is available in the VGM release, but does not include five dependent Hybridus host implementations; full reproducibility from that archive alone is not claimed.
+
+The VGM preview and FAP are offered as community materials without charge, subject to applicable upstream terms, notices, and the VGM developer's permission. This entry does not grant a license to third-party code, assets, schemas, or dependencies, and does not transfer rights in them. Maintainers should review the linked materials and licensing scope before considering any integration.
